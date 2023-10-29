@@ -11,9 +11,9 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ViewBookingsPage from './components/hostListings/ViewBookingsPage';
 import HostListingsPage from './components/hostListings/HostListingsPage';
-import ListingsLandingPage from './components/hostListings/ListingsLandingPage';
+import ListingsLandingPage from './components/listings/ListingsLandingPage';
 import EditBookingsPage from './components/hostListings/EditBookingsPage';
-import ViewSelectedListingPage from './components/hostListings/ViewSelectedListingPage';
+import ViewSelectedListingPage from './components/listingInfo/ViewSelectedListingPage';
 
 const App = () => {
   return (

@@ -4,7 +4,7 @@ const ListingsLandingPage = () => {
   return (
     <>
       <h1>airbrb</h1>
-      <p>Welcome!</p>
+      <p>welcome</p>
     </>
   );
 }
