@@ -1,37 +1,41 @@
 import React, { useState } from 'react';
-import { apiCall } from '../../../helpers';
+import { apiCall } from '../../helpers';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('hello');
-    const res = await apiCall('POST', undefined, '/user/auth/login', {
+    // Make the API call for registration
+    const response = await apiCall('POST', undefined, '/user/auth/register', {
       email,
+      name,
       password
     });
 
-    if (res.status === 200) {
-      const { token } = await res.json();
+    // Handle the response here
+    if (response.status === 200) {
+      const { token } = await response.json();
       console.log(token);
       // Clear the form
       setEmail('');
+      setName('');
       setPassword('');
-      // now redirect to landing page ig?
+
       navigate('/');
     } else {
-      alert('invalid details');
+      // Handle registration errors
     }
   }
 
   return (
     <>
-      <h2>Login</h2>
+      <h2>Register</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="email" className="form-label">Email address</label>
@@ -42,6 +46,16 @@ const Login = () => {
             aria-describedby="emailHelp"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="name" className="form-label">Name</label>
+          <input
+            type="text"
+            className="form-control"
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
         </div>
         <div className="mb-3">
@@ -60,4 +74,4 @@ const Login = () => {
   );
 }
 
-export default Login;
+export default Register;
