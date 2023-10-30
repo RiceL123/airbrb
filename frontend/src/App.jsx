@@ -29,7 +29,7 @@ const App = () => {
             <Route path='/register' element={<Register />} />
             <Route path='/hosted' element={<HostListingsPage />} />
             <Route path='/bookings' element={<ViewBookingsPage />} />
-            <Route path='/editHosted' element={<EditBookingsPage />} />
+            <Route path='/editHosted/:id' element={<EditBookingsPage />} />
             <Route path='/selectedListing/:id' element={<ViewSelectedListingPage />} />
           </Routes>
         </BrowserRouter>

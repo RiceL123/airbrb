@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
+
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -33,29 +35,29 @@ const MenuToggle = () => {
     >
       <List>
         <ListItem key='View Hosted' disablePadding>
-            <ListItemButton>
-                <ListItemIcon>
-                    <AddBusinessIcon/>
-                </ListItemIcon>
-                <ListItemText primary={'View Hosted'} />
-            </ListItemButton>
+          <ListItemButton component={Link} to="/hosted">
+              <ListItemIcon>
+                  <AddBusinessIcon/>
+              </ListItemIcon>
+              <ListItemText primary={'View Hosted'} />
+          </ListItemButton>
         </ListItem>
         <ListItem key='View All Listings' disablePadding>
-            <ListItemButton>
-                <ListItemIcon>
-                    <AddHomeIcon/>
-                </ListItemIcon>
-                <ListItemText primary={'View All Listings'} />
-            </ListItemButton>
+          <ListItemButton component={Link} to="/">
+              <ListItemIcon>
+                  <HomeIcon/>
+              </ListItemIcon>
+              <ListItemText primary={'View All Listings'} />
+          </ListItemButton>
         </ListItem>
         <Divider/>
-        <ListItem key='Home' disablePadding>
-            <ListItemButton>
-                <ListItemIcon>
-                    <HomeIcon/>
-                </ListItemIcon>
-                <ListItemText primary={'Home'} />
-            </ListItemButton>
+        <ListItem key='Bookings' disablePadding>
+          <ListItemButton component={Link} to="/bookings">
+            <ListItemIcon>
+                <AddHomeIcon/>
+            </ListItemIcon>
+            <ListItemText primary={'Bookings'} />
+          </ListItemButton>
         </ListItem>
       </List>
     </Box>
