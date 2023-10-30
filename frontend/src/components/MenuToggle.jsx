@@ -8,9 +8,10 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
+import AddHomeIcon from '@mui/icons-material/AddHome';
+import HomeIcon from '@mui/icons-material/Home';
 
 const MenuToggle = () => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -31,29 +32,31 @@ const MenuToggle = () => {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem key={text} disablePadding>
+        <ListItem key='View Hosted' disablePadding>
             <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
+                <ListItemIcon>
+                    <AddBusinessIcon/>
+                </ListItemIcon>
+                <ListItemText primary={'View Hosted'} />
             </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem key={text} disablePadding>
+        </ListItem>
+        <ListItem key='View All Listings' disablePadding>
             <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
+                <ListItemIcon>
+                    <AddHomeIcon/>
+                </ListItemIcon>
+                <ListItemText primary={'View All Listings'} />
             </ListItemButton>
-          </ListItem>
-        ))}
+        </ListItem>
+        <Divider/>
+        <ListItem key='Home' disablePadding>
+            <ListItemButton>
+                <ListItemIcon>
+                    <HomeIcon/>
+                </ListItemIcon>
+                <ListItemText primary={'Home'} />
+            </ListItemButton>
+        </ListItem>
       </List>
     </Box>
   );
