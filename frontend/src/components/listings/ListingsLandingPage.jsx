@@ -35,16 +35,16 @@ const ListingsLandingPage = () => {
 
   return (
     <>
-      <Box section="section" sx={{ p: 2, m: 1 }}>
+      <Box section="section" sx={{ p: 1, m: 1 }}>
         <Typography variant="h2">
           airbrb
         </Typography>
         <Typography variant="body1">Hey {!authEmail && !authToken ? 'Guest User' : authEmail}!</Typography>
       </Box>
-      <Box section="section" sx={{ p: 2, m: 1 }}>
+      <Box section="section" sx={{ p: 1, m: 1 }}>
         <SearchBar onSearch={handleSearch} />
       </Box>
-      <Box section="section" sx={{ p: 2, m: 1 }}>
+      <Box section="section" sx={{ p: 1, m: 1 }}>
         {Array.isArray(listings) && listings.map((listing) => (
           <ListingCard listing={listing} key={listing.id} />
         ))}
