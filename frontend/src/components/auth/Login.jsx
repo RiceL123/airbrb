@@ -1,61 +1,75 @@
 import React, { useState } from 'react';
+import { TextField, Button, Typography } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom'
 import { apiCall } from '../../helpers';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [emailError, setEmailError] = useState(false)
+  const [passwordError, setPasswordError] = useState(false)
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault()
 
-    console.log('hello');
+    setEmailError(false)
+    setPasswordError(false)
+
+    if (email === '') {
+      setEmailError(true)
+      return
+    }
+    if (password === '') {
+      setPasswordError(true)
+      return
+    }
+
     const res = await apiCall('POST', undefined, '/user/auth/login', {
       email,
       password
     });
 
-    if (res.status === 200) {
-      const { token } = await res.json();
-      console.log(token);
-      // Clear the form
-      setEmail('');
-      setPassword('');
-      // now redirect to landing page ig?
+    if (res.ok) {
+      const { token } = await res.json()
+      login(email, token)
       navigate('/');
     } else {
-      alert('invalid details');
+      setEmailError(true)
+      setPasswordError(true)
     }
   }
 
   return (
     <>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email address</label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            aria-describedby="emailHelp"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">Submit</button>
+      <form autoComplete='off' onSubmit={handleSubmit}>
+        <Typography variant="h2" component="h2">Login</Typography>
+        <TextField
+          label='Email'
+          onChange={e => setEmail(e.target.value)}
+          required
+          type='email'
+          sx={{ mb: 3 }}
+          fullWidth
+          value={email}
+          error={emailError}
+        />
+        <TextField
+          label='Password'
+          onChange={e => setPassword(e.target.value)}
+          required
+          type='password'
+          value={password}
+          error={passwordError}
+          fullWidth
+          sx={{ mb: 3 }}
+        />
+        <Button variant='contained' color='primary' type='submit'>Login</Button>
+
       </form>
+      <Typography variant="subtitle1" component="span">Need an account? <Link to='/register'>Register</Link></Typography>
     </>
   );
 }

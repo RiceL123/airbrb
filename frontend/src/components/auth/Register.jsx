@@ -1,75 +1,95 @@
 import React, { useState } from 'react';
+import { TextField, Button, Typography } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom'
 import { apiCall } from '../../helpers';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 
 const Register = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState(false);
+  const [nameError, setNameError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Make the API call for registration
+    setEmailError(false);
+    setNameError(false);
+    setPasswordError(false);
+
+    if (email === '') {
+      setEmailError(true);
+      return;
+    }
+    if (name === '') {
+      setNameError(true);
+      return;
+    }
+    if (password === '') {
+      setPasswordError(true);
+      return;
+    }
+
     const response = await apiCall('POST', undefined, '/user/auth/register', {
       email,
       name,
       password
     });
 
-    // Handle the response here
     if (response.status === 200) {
       const { token } = await response.json();
-      console.log(token);
-      // Clear the form
       setEmail('');
       setName('');
       setPassword('');
-
+      login(email, token);
       navigate('/');
     } else {
-      // Handle registration errors
+      setEmailError(true);
+      setNameError(true);
+      setPasswordError(true);
     }
   }
 
   return (
     <>
-      <h2>Register</h2>
+      <Typography variant="h2" component="h2">Register</Typography>
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email address</label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            aria-describedby="emailHelp"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">Name</label>
-          <input
-            type="text"
-            className="form-control"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">Submit</button>
+        <TextField
+          label='Email'
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          type='email'
+          fullWidth
+          value={email}
+          error={emailError}
+          sx={{ mb: 3 }}
+        />
+        <TextField
+          label='Name'
+          onChange={(e) => setName(e.target.value)}
+          required
+          fullWidth
+          value={name}
+          error={nameError}
+          sx={{ mb: 3 }}
+        />
+        <TextField
+          label='Password'
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          type='password'
+          fullWidth
+          value={password}
+          error={passwordError}
+          sx={{ mb: 3 }}
+        />
+        <Button variant='contained' type='submit'>Submit</Button>
       </form>
+      <Typography variant="subtitle1" component="span">Already have an account? <Link to='/login'>Login</Link></Typography>
     </>
   );
 }

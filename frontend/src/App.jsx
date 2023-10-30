@@ -6,6 +6,8 @@ import {
   Route
 } from 'react-router-dom';
 
+import { AuthProvider } from './components/auth/AuthContext';
+
 import Nav from './components/Nav';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
@@ -18,18 +20,20 @@ import ViewSelectedListingPage from './components/listingInfo/ViewSelectedListin
 const App = () => {
   return (
     <>
-      <BrowserRouter>
-        <Nav />
-        <Routes>
-          <Route path="/" element={<ListingsLandingPage />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='/register' element={<Register />} />
-          <Route path='/hosted' element={<HostListingsPage />} />
-          <Route path='/bookings' element={<ViewBookingsPage />} />
-          <Route path='/editHosted' element={<EditBookingsPage />} />
-          <Route path='/selectedListing' element={<ViewSelectedListingPage />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Nav />
+          <Routes>
+            <Route path="/" element={<ListingsLandingPage />} />
+            <Route path='/login' element={<Login />} />
+            <Route path='/register' element={<Register />} />
+            <Route path='/hosted' element={<HostListingsPage />} />
+            <Route path='/bookings' element={<ViewBookingsPage />} />
+            <Route path='/editHosted' element={<EditBookingsPage />} />
+            <Route path='/selectedListing' element={<ViewSelectedListingPage />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </>
   );
 }
