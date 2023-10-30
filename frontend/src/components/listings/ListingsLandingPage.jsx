@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-
 import { apiCall } from '../../helpers';
 
 import { Typography } from '@mui/material';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
+import { Box } from '@mui/system';
+
+import ListingCard from './ListingCard';
+import SearchBar from './SearchBar';
 
 const ListingsLandingPage = () => {
   const { authEmail, authToken } = useAuth();
   const [listings, setListings] = useState([]);
+  const [filteredListings, setFilteredListings] = useState(listings);
 
   useEffect(() => {
     const getListings = async () => {
@@ -27,25 +28,27 @@ const ListingsLandingPage = () => {
     getListings();
   }, []);
 
+  const handleSearch = (searchText) => {
+    // Handle
+    console.log(searchText);
+  }
+
   return (
     <>
-      <Typography variant="h2">
-        airbrb
-      </Typography>
-      <Typography variant="body1">welcome ~➡️{!authEmail && !authToken ? 'Guest User' : authEmail}⬅️~</Typography>
-
-      {Array.isArray(listings) && listings.map((listing) => (
-        <Link to={`/selectedListing/${listing.id}`} key={listing.id}>
-          <Card>
-            <CardContent>
-              <h3>{listing.title}</h3>
-              <p>Owner: {listing.owner}</p>
-              <p>Property Type: {listing.propertyType}</p>
-            </CardContent>
-          </Card>
-        </Link>
-      ))}
-
+      <Box section="section" sx={{ p: 2, m: 1 }}>
+        <Typography variant="h2">
+          airbrb
+        </Typography>
+        <Typography variant="body1">Hey {!authEmail && !authToken ? 'Guest User' : authEmail}!</Typography>
+      </Box>
+      <Box section="section" sx={{ p: 2, m: 1 }}>
+        <SearchBar onSearch={handleSearch} />
+      </Box>
+      <Box section="section" sx={{ p: 2, m: 1 }}>
+        {Array.isArray(listings) && listings.map((listing) => (
+          <ListingCard listing={listing} key={listing.id} />
+        ))}
+      </Box>
     </>
   );
 }
