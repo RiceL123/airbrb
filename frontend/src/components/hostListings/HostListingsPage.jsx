@@ -41,7 +41,7 @@ const HostListingsPage = () => {
 
   const handleCreateListing = async () => {
     const listingId = generateRandomId();
-    setListingData({ ...listingData, ['id']: listingId });
+    setListingData({ ...listingData, id: listingId });
 
     console.log(listingData);
 
