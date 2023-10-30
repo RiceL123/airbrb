@@ -6,9 +6,12 @@ import { Box } from '@mui/system';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
+import { apiCall, generateRandomId } from '../../helpers';
+
 const HostListingsPage = () => {
   const { authEmail, authToken } = useAuth();
   const [listingData, setListingData] = useState({
+    id: 0,
     title: '',
     address: '',
     thumbUrl: '',
@@ -19,6 +22,7 @@ const HostListingsPage = () => {
     amenities: [],
     images: [],
     isLive: false,
+    metadata: {},
   });
   const [isFormVisible, setIsFormVisible] = useState(false);
 
@@ -35,10 +39,20 @@ const HostListingsPage = () => {
     }
   };
 
-  const handleCreateListing = () => {
+  const handleCreateListing = async () => {
+    const listingId = generateRandomId();
+    setListingData({ ...listingData, ['id']: listingId });
+
     console.log(listingData);
-    resetListingData();
-    toggleFormVisibility();
+
+    const response = await apiCall('POST', authToken, '/listings/new', listingData);
+    if (response.ok) {
+      // const { listingId } = await response.json();
+      resetListingData();
+      toggleFormVisibility();
+    } else {
+      console.error('Error occured whilst creating listing: ', response.error);
+    }
   };
 
   const toggleFormVisibility = () => {

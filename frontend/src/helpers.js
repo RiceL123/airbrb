@@ -10,3 +10,8 @@ export const apiCall = (method, token, path, body) => {
     body: JSON.stringify(body)
   });
 }
+
+export const generateRandomId = () => {
+  // Random 6 digit id
+  return 100000 + Math.floor(Math.random() * 900000);
+}
