@@ -9,28 +9,35 @@ import { apiCall, fileToDataUrl } from '../../helpers';
 const CreateListing = () => {
   const { authToken } = useAuth();
   const [listingData, setListingData] = useState({
-    // id: 0, we dont give the backend an id
     title: '',
-    address: '',
-    thumbnail: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+    },
     price: 0.0,
-    propertyType: '',
-    bedrooms: [],
-    numberBathrooms: 0,
-    amenities: [],
-    images: [],
-    isLive: false,
-    metadata: {},
+    thumbnail: '',
+    metadata: {
+      ownerEmail: '',
+      propertyType: '',
+      bedrooms: [],
+      numberBathrooms: 0,
+      amenities: [],
+      images: [],
+      isLive: false,
+    },
   });
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     if (name === 'price') {
+      // Make sure price is a number
       if (/^\d+$/.test(value) || value === '') {
         setListingData({ ...listingData, [name]: value });
       }
     } else if (name === 'thumbnail') {
+      // Process images correctly
       fileToDataUrl(event.target.files[0])
         .then((url) => setListingData({ ...listingData, [name]: url }))
         .catch(() => alert('invalid thumbnail image'));
@@ -39,8 +46,30 @@ const CreateListing = () => {
     }
   };
 
+  const handleInputChangeAddress = (event) => {
+    const { name, value } = event.target;
+    setListingData({
+      ...listingData,
+      address: {
+        ...listingData.address,
+        [name]: value,
+      },
+    });
+  };
+
+  const handleInputChangeMetaData = (event) => {
+    const { name, value } = event.target;
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        [name]: value,
+      },
+    });
+  };
+
   const handleCreateListing = async () => {
-    console.log('pushing to backend');
+    console.log('Pushing data to backend:');
     console.log(listingData);
     const response = await apiCall('POST', authToken, '/listings/new', listingData);
     if (response.ok) {
@@ -67,67 +96,102 @@ const CreateListing = () => {
     const newBedroom = { name: '', beds: 0 };
     setListingData({
       ...listingData,
-      bedrooms: [...listingData.bedrooms, newBedroom],
+      metadata: {
+        ...listingData.metadata,
+        bedrooms: [...listingData.metadata.amenities, newBedroom],
+      },
     });
   };
 
   const handleBedroomChange = (event, index) => {
     const { name, value } = event.target;
-    const updatedBedrooms = [...listingData.bedrooms];
+    const updatedBedrooms = [...listingData.metadata.bedrooms];
     updatedBedrooms[index][name] = value;
-    setListingData({ ...listingData, bedrooms: updatedBedrooms });
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        bedrooms: updatedBedrooms,
+      },
+    });
   };
 
   const addAmenity = () => {
     const newAmenity = { name: '' };
     setListingData({
       ...listingData,
-      amenities: [...listingData.amenities, newAmenity],
+      metadata: {
+        ...listingData.metadata,
+        amenities: [...listingData.metadata.amenities, newAmenity],
+      },
     });
   };
 
   const handleAmenityChange = (event, index) => {
     const { name, value } = event.target;
-    const updatedAmenities = [...listingData.amenities];
+    const updatedAmenities = [...listingData.metadata.amenities];
     updatedAmenities[index][name] = value;
-    setListingData({ ...listingData, amenities: updatedAmenities });
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        amenities: updatedAmenities,
+      },
+    });
   };
 
   const addImages = (event) => {
     const selectedImages = event.target.files;
-    const updatedImages = listingData.images;
 
-    const processImages = Array.from(selectedImages).map(file => {
+    // Create an array of promises to process the selected images
+    const processImages = Array.from(selectedImages).map((file) => {
       return fileToDataUrl(file)
-        .then((fileUrl) => updatedImages.push({ [file.name]: fileUrl }))
-        .catch(() => alert('invalid image'));
+        .then((fileUrl) => {
+          // Update state
+          setListingData((prevData) => ({
+            ...prevData,
+            metadata: {
+              ...prevData.metadata,
+              images: [
+                ...(prevData.metadata.images || []),
+                { [file.name]: fileUrl },
+              ],
+            },
+          }));
+        })
+        .catch(() => {
+          alert('Invalid image');
+        });
     });
 
+    // Wait for all promises to resolve
     Promise.all(processImages)
       .then(() => {
-        setListingData({ ...listingData, images: updatedImages })
-        console.log(listingData);
+      })
+      .catch((error) => {
+        console.error(error);
       });
-
-    // for (let i = 0; i < selectedImages.length; i++) {
-    //   updatedImages.push(selectedImages[i]);
-    // }
-
-    // setListingData({ ...listingData, images: updatedImages });
   };
 
   const resetListingData = () => {
     setListingData({
       title: '',
-      address: '',
-      thumbnail: '',
+      address: {
+        street: '',
+        city: '',
+        state: '',
+      },
       price: 0.0,
-      propertyType: '',
-      bedrooms: [],
-      numberBathrooms: 0,
-      amenities: [],
-      images: [],
-      isLive: false,
+      thumbnail: '',
+      metadata: {
+        ownerEmail: '',
+        propertyType: '',
+        bedrooms: [],
+        numberBathrooms: 0,
+        amenities: [],
+        images: [],
+        isLive: false,
+      },
     });
   };
 
@@ -150,12 +214,32 @@ const CreateListing = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={4}>
                 <TextField
-                  name="address"
-                  label="Listing Address"
-                  value={listingData.address}
-                  onChange={handleInputChange}
+                  name="street"
+                  label="Listing Street Address"
+                  value={listingData.address.street}
+                  onChange={handleInputChangeAddress}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  name="city"
+                  label="Listing Address City"
+                  value={listingData.address.city}
+                  onChange={handleInputChangeAddress}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  name="state"
+                  label="Listing Address State"
+                  value={listingData.address.state}
+                  onChange={handleInputChangeAddress}
                   fullWidth
                   required
                 />
@@ -179,8 +263,8 @@ const CreateListing = () => {
                   select
                   name="propertyType"
                   label="Property Type"
-                  value={'entirePlace'}
-                  onChange={handleInputChange}
+                  value={listingData.metadata.propertyType}
+                  onChange={handleInputChangeMetaData}
                   fullWidth
                   required
                 >
@@ -214,7 +298,7 @@ const CreateListing = () => {
                   name="numberBathrooms"
                   label="Number of bathrooms"
                   value={listingData.numberBathrooms}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeMetaData}
                   fullWidth
                   inputProps={{
                     inputMode: 'numeric',
@@ -224,7 +308,7 @@ const CreateListing = () => {
                 />
               </Grid>
               <Grid item xs={6}>
-                {listingData.bedrooms.map((bedroom, index) => (
+                {listingData.metadata.bedrooms.map((bedroom, index) => (
                   <div key={index}>
                     <TextField
                       name="name"
@@ -247,7 +331,7 @@ const CreateListing = () => {
                 </Button>
               </Grid>
               <Grid item xs={6}>
-                {listingData.amenities.map((amenity, index) => (
+                {listingData.metadata.amenities.map((amenity, index) => (
                   <div key={index}>
                     <TextField
                       name="name"

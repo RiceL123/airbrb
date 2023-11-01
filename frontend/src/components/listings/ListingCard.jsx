@@ -22,7 +22,7 @@ const ListingCard = ({ listing }) => {
               <Typography variant='h6'>{listing.title}</Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant='body1'>{listing.address}</Typography>
+              <Typography variant='body1'>{listing.address.street + ', ' + listing.address.city + ', ' + listing.address.state}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant='caption'>Price (per night):</Typography>
