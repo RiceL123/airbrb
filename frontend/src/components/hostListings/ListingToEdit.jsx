@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { TextField, Box, MenuItem, Input, Typography, Button, CardMedia, Card, Grid } from '@mui/material';
-
 import { apiCall, fileToDataUrl } from '../../helpers';
 import ImageCarousel from '../listings/ImageCarousel';
+
+import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
 
 const ListingToEdit = ({ listingInfo }) => {
   const { authToken } = useAuth();
@@ -15,8 +16,8 @@ const ListingToEdit = ({ listingInfo }) => {
   const [title, setTitle] = useState(listingInfo.title);
   const [address, setAddress] = useState(listingInfo.address);
   const [price, setPrice] = useState(listingInfo.price);
-  const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail);
-  const [listingImages, setListingImages] = useState((listingInfo.metadata.images).map(obj => Object.entries(obj)[0]));
+  const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail || DEFAULT_CARD_IMG);
+  const [listingImages, setListingImages] = useState(listingInfo.metadata.images) // .map(obj => Object.entries(obj)[0]));
   // Note
   /*
   listingInfo.metadata.images = [{filename: url}, {etc}, {etc}...]
@@ -57,13 +58,14 @@ const ListingToEdit = ({ listingInfo }) => {
   }
 
   const addImages = (e) => {
+    console.log(Array.from(e.target.files));
     const selectedImages = e.target.files;
     const imagesCopy = [...listingInfo.metadata.images];
 
     const processImages = Array.from(selectedImages).map((file) => {
       return fileToDataUrl(file)
         .then((fileUrl) => {
-          imagesCopy.push({ [file.name]: fileUrl });
+          imagesCopy.push({ title: [file.name], imageUrl: fileUrl });
         })
         .catch(() => alert('Invalid image'));
     });
@@ -94,62 +96,62 @@ const ListingToEdit = ({ listingInfo }) => {
         </Grid>
         <Grid item xs={4}>
           <TextField
-          name="address"
-          label="Address (Street)"
-          defaultValue={listingInfo.address.street}
-          onChange={handleChange}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
+            name="address"
+            label="Address (Street)"
+            defaultValue={listingInfo.address.street}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
         </Grid>
         <Grid item xs={4}>
           <TextField
-          name="address"
-          label="Address (City)"
-          defaultValue={listingInfo.address.city}
-          onChange={handleChange}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
+            name="address"
+            label="Address (City)"
+            defaultValue={listingInfo.address.city}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
         </Grid>
         <Grid item xs={4}>
           <TextField
-          name="address"
-          label="Address (State)"
-          defaultValue={listingInfo.address.state}
-          onChange={handleChange}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
+            name="address"
+            label="Address (State)"
+            defaultValue={listingInfo.address.state}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
         </Grid>
         <Grid item xs={12}>
           <TextField
-          name="price"
-          label="Listing Price (Nightly)"
-          value={listingInfo.price}
-          onChange={handleChange}
-          inputProps={{
-            inputMode: 'numeric',
-            pattern: '[0-9]*',
-          }}
-          sx={{ mb: 2 }}
-        />
+            name="price"
+            label="Listing Price (Nightly)"
+            value={listingInfo.price}
+            onChange={handleChange}
+            inputProps={{
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
+            }}
+            sx={{ mb: 2 }}
+          />
         </Grid>
         <Grid item xs={12}>
           <Card
-          sx={{ mb: 2, p: 1 }}>
-          <Typography variant="body1">Thumbnail</Typography>
-          <CardMedia
-            sx={{ height: 200, width: 200 }}
-            image={thumbnail}
-          />
-          <Input
-            name="thumbnail"
-            label="Thumbnail"
-            type="file"
-            onChange={updateThumbnail}
-          />
-        </Card>
+            sx={{ mb: 2, p: 1 }}>
+            <Typography variant="body1">Thumbnail</Typography>
+            <CardMedia
+              sx={{ height: 200, width: 200 }}
+              image={thumbnail}
+            />
+            <Input
+              name="thumbnail"
+              label="Thumbnail"
+              type="file"
+              onChange={updateThumbnail}
+            />
+          </Card>
         </Grid>
         <Grid item xs={12}>
           <Card
@@ -169,21 +171,21 @@ const ListingToEdit = ({ listingInfo }) => {
         </Grid>
         <Grid item xs={12}>
           <TextField
-          select
-          name="propertyType"
-          label="Property Type"
-          value={'temp'}
-          onChange={handleChange}
-          fullWidth
-          required
-          sx={{ mb: 2 }}
-        >
-          <MenuItem value="temp">backend doesnt store this yet so can&apos;t update it</MenuItem>
-          <MenuItem value="entirePlace">Entire Place</MenuItem>
-          <MenuItem value="privateRoom">Private Room</MenuItem>
-          <MenuItem value="hotelRoom">Hotel Room</MenuItem>
-          <MenuItem value="sharedRoom">Shared Room</MenuItem>
-        </TextField>
+            select
+            name="propertyType"
+            label="Property Type"
+            value={'temp'}
+            onChange={handleChange}
+            fullWidth
+            required
+            sx={{ mb: 2 }}
+          >
+            <MenuItem value="temp">backend doesnt store this yet so can&apos;t update it</MenuItem>
+            <MenuItem value="entirePlace">Entire Place</MenuItem>
+            <MenuItem value="privateRoom">Private Room</MenuItem>
+            <MenuItem value="hotelRoom">Hotel Room</MenuItem>
+            <MenuItem value="sharedRoom">Shared Room</MenuItem>
+          </TextField>
         </Grid>
         <Grid item xs={12}>
           <Button variant="contained" onClick={handleSubmit}>Submit</Button>

@@ -17,10 +17,10 @@ const ImageCarousel = ({ images }) => {
         scrollButtons="auto"
         aria-label="scrollable auto tabs example"
       >
-        {images.map(([fileName, fileUrl], index) => (
+        {images.map(({ title, imageUrl }, index) => (
           <Tab
-            key={fileName}
-            label={fileName}
+            key={title}
+            label={title}
             value={index}
           />
         ))}
@@ -29,11 +29,11 @@ const ImageCarousel = ({ images }) => {
       <Card>
         <CardMedia
           sx={{ height: 200, width: 200 }}
-          image={images[tabValue][1]}
+          image={images[tabValue].imageUrl}
         />
         <CardContent>
           <Typography variant="body2" color="textSecondary">
-            {images[tabValue][0]}
+            {images[tabValue].title}
           </Typography>
           <Button color="error" variant="outlined">Delete</Button>
         </CardContent>

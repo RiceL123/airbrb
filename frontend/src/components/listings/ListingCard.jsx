@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Typography, Card, CardContent, Grid, CardMedia } from '@mui/material';
 
-const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
+export const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
 
 const ListingCard = ({ listing }) => {
   return (
