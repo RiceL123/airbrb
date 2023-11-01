@@ -13,22 +13,39 @@ const ListingToEdit = ({ listingInfo }) => {
   console.log(listingInfo);
   // const [title, setTitle] = useState(listingInfo.title);
   const [title, setTitle] = useState(listingInfo.title);
+  const [address, setAddress] = useState(listingInfo.address);
+  const [price, setPrice] = useState(listingInfo.price);
+  const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail);
 
   useEffect(() => {
     // Update the body object when title changes
     body.title = title;
-    console.log(body);
-  }, [title]);
+    body.address = address;
+    body.price = price;
+    body.thumbnail = thumbnail;
+  }, [title, address, price, thumbnail]);
 
   const handleChange = (e) => {
     e.preventDefault();
-    setTitle(e.target.value);
+    const { name, value } = e.target;
+    switch (name) {
+      case 'title': setTitle(value); break;
+      case 'address': setAddress(value); break;
+      case 'price': setPrice(value); break;
+    }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
     apiCall('PUT', authToken, `/listings/${id}`, body)
       .then(() => console.log('nice it was updated i hope'))
+      .catch(msg => alert(msg));
+  }
+
+  const updateThumbnail = (e) => {
+    const thumnailFile = e.target.files[0];
+    fileToDataUrl(thumnailFile)
+      .then((fileUrl) => setThumbnail(fileUrl))
       .catch(msg => alert(msg));
   }
 
@@ -46,10 +63,7 @@ const ListingToEdit = ({ listingInfo }) => {
     Promise.all(processImages)
       .then(() => { console.log(images); body.images = images });
   };
-  // const [address, setAddress] = useState(listingInfo.address);
   // const [availability, setAvailability] = useState(listingInfo.availability);
-  // const [price, setPrice] = useState(listingInfo.price);
-  // const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail);
   // const handleSumbit = () => {
   //   const res = apiCall('PUT', authToken, `/listingInfos/${id}`, body)
   // }
@@ -81,7 +95,7 @@ const ListingToEdit = ({ listingInfo }) => {
         onChange={handleChange}
         inputProps={{
           inputMode: 'numeric',
-          pattern: '[1-9]?[0-9]*',
+          pattern: '[0-9]*',
         }}
         sx={{ mb: 2 }}
       />
@@ -89,20 +103,19 @@ const ListingToEdit = ({ listingInfo }) => {
         sx={{ mb: 2, p: 1 }}>
         <Typography variant="body1">Thumbnail</Typography>
         <CardMedia
-          sx={{ height: 100 }}
-          image="https://srv.carbonads.net/static/30242/41207b597f9a178f8ca65b0efc2d61b405740e0a"
+          sx={{ height: 200, width: 200 }}
+          image={thumbnail}
         />
         <Input
           name="thumbnail"
           label="Thumbnail"
           type="file"
-
-          onChange={handleChange}
+          onChange={updateThumbnail}
         />
       </Card>
       <Card
         sx={{ mb: 2, p: 1 }}>
-        <Typography variant="body1">Images</Typography>
+        <Typography variant="body1">Images backend dont save yet</Typography>
         <ImageCarousel images={[
           ['filename1', 'https://www.gravatar.com/avatar/e3d7466e265aa297eca4ccb0bfb5535b?s=64&d=identicon&r=PG&f=y&so-version=2'],
           ['file2', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e'],
@@ -134,7 +147,8 @@ const ListingToEdit = ({ listingInfo }) => {
         <MenuItem value="hotelRoom">Hotel Room</MenuItem>
         <MenuItem value="sharedRoom">Shared Room</MenuItem>
       </TextField>
-      <Button onClick={handleSubmit}>Submit</Button>
+      <Button variant="contained" onClick={handleSubmit}>Submit</Button>
+      <Button variant="outlined" onClick={handleSubmit}>Cancel</Button>
     </Box>
   );
 }

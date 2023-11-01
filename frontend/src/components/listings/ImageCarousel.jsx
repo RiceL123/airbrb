@@ -28,14 +28,14 @@ const ImageCarousel = ({ images }) => {
 
       <Card>
         <CardMedia
-          sx={{ height: 200 }}
+          sx={{ height: 200, width: 200 }}
           image={images[tabValue][1]}
         />
         <CardContent>
           <Typography variant="body2" color="textSecondary">
             {images[tabValue][0]}
           </Typography>
-          <Button variant="contained">Delete</Button>
+          <Button color="error" variant="outlined">Delete</Button>
         </CardContent>
       </Card>
     </>

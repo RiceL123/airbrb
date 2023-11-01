@@ -17,9 +17,6 @@ const EditListingPage = () => {
       const response = await apiCall('GET', authToken, `/listings/${id}`);
       if (response.ok) {
         const { listing } = await response.json();
-        // console.log(listing);
-        // console.log(listing);
-        // console.log(`${typeof (listing.owner)} ${listing.owner} === ${typeof (authEmail)} ${authEmail}`);
         if (listing.owner === authEmail) {
           setListingInfo(listing);
           setHasPermission(true);
