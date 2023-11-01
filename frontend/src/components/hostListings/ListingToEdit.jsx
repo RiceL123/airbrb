@@ -20,7 +20,7 @@ const ListingToEdit = ({ listingInfo }) => {
   // Note
   /*
   listingInfo.metadata.images = [{filename: url}, {etc}, {etc}...]
-  we convert to 
+  we convert to
   [[filename, url], [filename, url], etc, etc]
   */
 

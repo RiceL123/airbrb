@@ -7,6 +7,7 @@ import { Box } from '@mui/system';
 
 import ListingCard from './ListingCard';
 import SearchBar from './SearchBar';
+import SearchContainer from './SearchContainer';
 
 const ListingsLandingPage = () => {
   const { authEmail, authToken } = useAuth();
@@ -19,7 +20,7 @@ const ListingsLandingPage = () => {
       if (response.ok) {
         const data = await response.json();
         setListings(data.listings);
-        console.log(data);
+        // console.log(data);
       } else {
         console.error('Getting all listings failed.');
       }
@@ -43,6 +44,7 @@ const ListingsLandingPage = () => {
       </Box>
       <Box section="section" sx={{ p: 1, m: 1 }}>
         <SearchBar onSearch={handleSearch} />
+        <SearchContainer />
       </Box>
       <Box section="section" sx={{ p: 1, m: 1 }}>
         <Grid container spacing={1}>

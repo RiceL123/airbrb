@@ -30,7 +30,7 @@ const App = () => {
             <Route path='/hosted' element={<HostListingsPage />} />
             <Route path='/hosted/:id/edit' element={<EditListingPage />} />
             <Route path='/editHosted' element={<EditBookingsPage />} />
-            <Route path='/selectedListing' element={<ViewSelectedListingPage />} />
+            <Route path='/selectedListing/:id' element={<ViewSelectedListingPage />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
