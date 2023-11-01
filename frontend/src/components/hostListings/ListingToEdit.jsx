@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { TextField, Box, MenuItem, Input, Typography, Button, CardMedia, Card } from '@mui/material';
+import { TextField, Box, MenuItem, Input, Typography, Button, CardMedia, Card, Grid } from '@mui/material';
 
 import { apiCall, fileToDataUrl } from '../../helpers';
 import ImageCarousel from '../listings/ImageCarousel';
@@ -16,6 +16,13 @@ const ListingToEdit = ({ listingInfo }) => {
   const [address, setAddress] = useState(listingInfo.address);
   const [price, setPrice] = useState(listingInfo.price);
   const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail);
+  const [listingImages, setListingImages] = useState((listingInfo.metadata.images).map(obj => Object.entries(obj)[0]));
+  // Note
+  /*
+  listingInfo.metadata.images = [{filename: url}, {etc}, {etc}...]
+  we convert to 
+  [[filename, url], [filename, url], etc, etc]
+  */
 
   useEffect(() => {
     // Update the body object when title changes
@@ -50,18 +57,22 @@ const ListingToEdit = ({ listingInfo }) => {
   }
 
   const addImages = (e) => {
-    // should render all the images in listingInfo images and give options to delete
-    console.log(listingInfo.images);
-    const images = [...listingInfo.images];
+    const selectedImages = e.target.files;
+    const imagesCopy = [...listingInfo.metadata.images];
 
-    const processImages = Array.from(e.target.files).map(file => {
+    const processImages = Array.from(selectedImages).map((file) => {
       return fileToDataUrl(file)
-        .then((fileUrl) => images.push({ [file.name]: fileUrl }))
-        .catch(() => alert('invalid image'));
-    })
+        .then((fileUrl) => {
+          imagesCopy.push({ [file.name]: fileUrl });
+        })
+        .catch(() => alert('Invalid image'));
+    });
 
+    // Double check this works... you'd need to PUT req rather than edit setListingInfo
     Promise.all(processImages)
-      .then(() => { console.log(images); body.images = images });
+      .then(() => {
+        setListingImages(imagesCopy);
+      });
   };
   // const [availability, setAvailability] = useState(listingInfo.availability);
   // const handleSumbit = () => {
@@ -69,86 +80,116 @@ const ListingToEdit = ({ listingInfo }) => {
   // }
 
   return (
-    <Box
-      component="form"
-    >
-      <TextField
-        name="title"
-        label="title"
-        defaultValue={listingInfo.title}
-        onChange={handleChange}
-        fullWidth
-        sx={{ mb: 2 }}
-      />
-      <TextField
-        name="address"
-        label="address"
-        defaultValue={listingInfo.address}
-        onChange={handleChange}
-        fullWidth
-        sx={{ mb: 2 }}
-      />
-      <TextField
-        name="price"
-        label="Listing Price (Nightly)"
-        value={listingInfo.price}
-        onChange={handleChange}
-        inputProps={{
-          inputMode: 'numeric',
-          pattern: '[0-9]*',
-        }}
-        sx={{ mb: 2 }}
-      />
-      <Card
-        sx={{ mb: 2, p: 1 }}>
-        <Typography variant="body1">Thumbnail</Typography>
-        <CardMedia
-          sx={{ height: 200, width: 200 }}
-          image={thumbnail}
-        />
-        <Input
-          name="thumbnail"
-          label="Thumbnail"
-          type="file"
-          onChange={updateThumbnail}
-        />
-      </Card>
-      <Card
-        sx={{ mb: 2, p: 1 }}>
-        <Typography variant="body1">Images backend dont save yet</Typography>
-        <ImageCarousel images={[
-          ['filename1', 'https://www.gravatar.com/avatar/e3d7466e265aa297eca4ccb0bfb5535b?s=64&d=identicon&r=PG&f=y&so-version=2'],
-          ['file2', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e'],
-          ['file3', 'https://yt3.ggpht.com/THjDU20XPxsKUXP6oD1mqHMcd2946Qcb-QDlfaz6wLmnspenqcVraq6HIAMcxN6fweqXQynPeA=s600-c-k-c0x00ffffff-no-rj-rp-mo']
-        ]} />
-        <Input
-          name="images"
-          type="file"
-          inputProps={{
-            multiple: true
-          }}
-          onChange={addImages}
+    <Box component="form">
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            name="title"
+            label="title"
+            defaultValue={listingInfo.title}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <TextField
+          name="address"
+          label="Address (Street)"
+          defaultValue={listingInfo.address.street}
+          onChange={handleChange}
+          fullWidth
           sx={{ mb: 2 }}
         />
-      </Card>
-      <TextField
-        select
-        name="propertyType"
-        label="Property Type"
-        value={'temp'}
-        onChange={handleChange}
-        fullWidth
-        required
-        sx={{ mb: 2 }}
-      >
-        <MenuItem value="temp">backend doesnt store this yet so can&apos;t update it</MenuItem>
-        <MenuItem value="entirePlace">Entire Place</MenuItem>
-        <MenuItem value="privateRoom">Private Room</MenuItem>
-        <MenuItem value="hotelRoom">Hotel Room</MenuItem>
-        <MenuItem value="sharedRoom">Shared Room</MenuItem>
-      </TextField>
-      <Button variant="contained" onClick={handleSubmit}>Submit</Button>
-      <Button variant="outlined" onClick={handleSubmit}>Cancel</Button>
+        </Grid>
+        <Grid item xs={4}>
+          <TextField
+          name="address"
+          label="Address (City)"
+          defaultValue={listingInfo.address.city}
+          onChange={handleChange}
+          fullWidth
+          sx={{ mb: 2 }}
+        />
+        </Grid>
+        <Grid item xs={4}>
+          <TextField
+          name="address"
+          label="Address (State)"
+          defaultValue={listingInfo.address.state}
+          onChange={handleChange}
+          fullWidth
+          sx={{ mb: 2 }}
+        />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+          name="price"
+          label="Listing Price (Nightly)"
+          value={listingInfo.price}
+          onChange={handleChange}
+          inputProps={{
+            inputMode: 'numeric',
+            pattern: '[0-9]*',
+          }}
+          sx={{ mb: 2 }}
+        />
+        </Grid>
+        <Grid item xs={12}>
+          <Card
+          sx={{ mb: 2, p: 1 }}>
+          <Typography variant="body1">Thumbnail</Typography>
+          <CardMedia
+            sx={{ height: 200, width: 200 }}
+            image={thumbnail}
+          />
+          <Input
+            name="thumbnail"
+            label="Thumbnail"
+            type="file"
+            onChange={updateThumbnail}
+          />
+        </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card
+            sx={{ mb: 2, p: 1 }}>
+            <Typography variant="body1">Listing Images</Typography>
+            {Array.isArray(listingImages) && listingImages.length > 0 ? (<ImageCarousel images={listingImages} />) : (<Typography variant="caption">No images available</Typography>)}
+            <Input
+              name="images"
+              type="file"
+              inputProps={{
+                multiple: true,
+              }}
+              onChange={addImages}
+              sx={{ mb: 2 }}
+            />
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+          select
+          name="propertyType"
+          label="Property Type"
+          value={'temp'}
+          onChange={handleChange}
+          fullWidth
+          required
+          sx={{ mb: 2 }}
+        >
+          <MenuItem value="temp">backend doesnt store this yet so can&apos;t update it</MenuItem>
+          <MenuItem value="entirePlace">Entire Place</MenuItem>
+          <MenuItem value="privateRoom">Private Room</MenuItem>
+          <MenuItem value="hotelRoom">Hotel Room</MenuItem>
+          <MenuItem value="sharedRoom">Shared Room</MenuItem>
+        </TextField>
+        </Grid>
+        <Grid item xs={12}>
+          <Button variant="contained" onClick={handleSubmit}>Submit</Button>
+          <Button variant="outlined" onClick={handleSubmit}>Cancel</Button>
+        </Grid>
+      </Grid>
     </Box>
   );
 }
