@@ -1,260 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-
-import { Typography, MenuItem, Grid, Input } from '@mui/material';
+import { Typography, Grid, Button } from '@mui/material';
 import { Box } from '@mui/system';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-
-import { apiCall, generateRandomId } from '../../helpers';
+import ListingCard from '../listings/ListingCard';
+import CreateListing from './CreateListing';
+import { apiCall } from '../../helpers';
 
 const HostListingsPage = () => {
   const { authEmail, authToken } = useAuth();
-  const [listingData, setListingData] = useState({
-    id: 0,
-    title: '',
-    address: '',
-    thumbUrl: '',
-    price: 0.0,
-    propertyType: '',
-    bedrooms: [],
-    numberBathrooms: 0,
-    amenities: [],
-    images: [],
-    isLive: false,
-    metadata: {},
-  });
-  const [isFormVisible, setIsFormVisible] = useState(false);
+  const navigate = useNavigate();
+  const [listings, setListings] = useState([]);
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    if (name === 'price') {
-      if (/^\d+$/.test(value) || value === '') {
-        setListingData({ ...listingData, [name]: value });
+  const handleEdit = (listingId) => () => {
+    console.log(listingId);
+    navigate(`/hosted/${listingId}/edit`);
+  }
+
+  useEffect(() => {
+    if (!authToken) return;
+    const getListings = async () => {
+      const response = await apiCall('GET', authToken, '/listings', undefined);
+      if (response.ok) {
+        const data = await response.json();
+        setListings(data.listings);
+        console.log(data);
+      } else {
+        console.error('Getting all listings failed.');
       }
-    } else if (name === 'thumbnail') {
-      setListingData({ ...listingData, [name]: event.target.files[0] });
-    } else {
-      setListingData({ ...listingData, [name]: value });
-    }
-  };
-
-  const handleCreateListing = async () => {
-    const listingId = generateRandomId();
-    setListingData({ ...listingData, id: listingId });
-
-    console.log(listingData);
-
-    const response = await apiCall('POST', authToken, '/listings/new', listingData);
-    if (response.ok) {
-      // const { listingId } = await response.json();
-      resetListingData();
-      toggleFormVisibility();
-    } else {
-      console.error('Error occured whilst creating listing: ', response.error);
-    }
-  };
-
-  const toggleFormVisibility = () => {
-    setIsFormVisible(!isFormVisible);
-  };
-
-  const addBedroom = () => {
-    const newBedroom = { name: '', beds: 0 };
-    setListingData({
-      ...listingData,
-      bedrooms: [...listingData.bedrooms, newBedroom],
-    });
-  };
-
-  const handleBedroomChange = (event, index) => {
-    const { name, value } = event.target;
-    const updatedBedrooms = [...listingData.bedrooms];
-    updatedBedrooms[index][name] = value;
-    setListingData({ ...listingData, bedrooms: updatedBedrooms });
-  };
-
-  const addAmenity = () => {
-    const newAmenity = { name: '' };
-    setListingData({
-      ...listingData,
-      amenities: [...listingData.amenities, newAmenity],
-    });
-  };
-
-  const handleAmenityChange = (event, index) => {
-    const { name, value } = event.target;
-    const updatedAmenities = [...listingData.amenities];
-    updatedAmenities[index][name] = value;
-    setListingData({ ...listingData, amenities: updatedAmenities });
-  };
-
-  const addImages = (event) => {
-    const selectedImages = event.target.files;
-    const updatedImages = [...listingData.images];
-
-    for (let i = 0; i < selectedImages.length; i++) {
-      updatedImages.push(selectedImages[i]);
     }
 
-    setListingData({ ...listingData, images: updatedImages });
-  };
-
-  const resetListingData = () => {
-    setListingData({
-      title: '',
-      address: '',
-      thumbUrl: '',
-      price: 0.0,
-      propertyType: '',
-      bedrooms: [],
-      numberBathrooms: 0,
-      amenities: [],
-      images: [],
-      isLive: false,
-    });
-  };
+    getListings();
+  }, [authToken]);
 
   return (
     <>
       <Box section="section" sx={{ p: 1, m: 1 }}>
-        <Typography variant="h6">Here are your hosted properties, {authEmail}.</Typography>
-        <Typography variant='body1'>TODO</Typography>
-      </Box>
-
-      <Box section="section" sx={{ p: 1, m: 1 }}>
-        <Box>
-          {isFormVisible && (
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="h6">Create new Listing</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="title"
-                  label="Listing Title"
-                  value={listingData.title}
-                  onChange={handleInputChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                name="address"
-                label="Listing Address"
-                value={listingData.address}
-                onChange={handleInputChange}
-                fullWidth
-                required
-              />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  name="price"
-                  label="Listing Price (Nightly)"
-                  value={listingData.price}
-                  onChange={handleInputChange}
-                  fullWidth
-                  inputProps={{
-                    inputMode: 'numeric',
-                    pattern: '[0-9]*',
-                  }}
-                  required
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  select
-                  name="propertyType"
-                  label="Property Type"
-                  value={listingData.propertyType}
-                  onChange={handleInputChange}
-                  fullWidth
-                  required
-                >
-                  <MenuItem value="entirePlace">Entire Place</MenuItem>
-                  <MenuItem value="privateRoom">Private Room</MenuItem>
-                  <MenuItem value="hotelRoom">Hotel Room</MenuItem>
-                  <MenuItem value="sharedRoom">Shared Room</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={4}>
-               <Typography variant="caption">Thumbnail</Typography>
-                <Input
-                  name="thumbnail"
-                  type="file"
-                  onChange={handleInputChange}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <Typography variant="caption">Images</Typography>
-                <Input
-                  name="images"
-                  type="file"
-                  multiple
-                  onChange={addImages}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="numberBathrooms"
-                  label="Number of bathrooms"
-                  value={listingData.numberBathrooms}
-                  onChange={handleInputChange}
-                  fullWidth
-                  inputProps={{
-                    inputMode: 'numeric',
-                    pattern: '[0-9]*',
-                  }}
-                  required
-                />
-              </Grid>
-              <Grid item xs={6}>
-                {listingData.bedrooms.map((bedroom, index) => (
-                  <div key={index}>
-                    <TextField
-                      name="name"
-                      label="Bedroom Name"
-                      value={bedroom.name}
-                      onChange={(e) => handleBedroomChange(e, index)}
-                      required
-                    />
-                    <TextField
-                      name="beds"
-                      label="Number of Beds"
-                      value={bedroom.beds}
-                      onChange={(e) => handleBedroomChange(e, index)}
-                      required
-                    />
-                  </div>
-                ))}
-                <Button variant="contained" onClick={addBedroom}>
-                  Add Bedroom
-                </Button>
-              </Grid>
-              <Grid item xs={6}>
-                {listingData.amenities.map((amenity, index) => (
-                  <div key={index}>
-                    <TextField
-                      name="name"
-                      label="Amenitities Name"
-                      value={amenity.name}
-                      onChange={(e) => handleAmenityChange(e, index)}
-                      required
-                    />
-                  </div>
-                ))}
-                <Button variant="contained" onClick={addAmenity}>
-                  Add Amenity
-                </Button>
-              </Grid>
+        {!authEmail && !authToken
+          ? <Typography variant="h6">To view your listings, please <Link to='/login'>Login</Link></Typography>
+          : (<>
+            <CreateListing />
+            <Typography variant="h6">Here are your hosted properties, {authEmail}.</Typography>
+            <Grid container spacing={1}>
+              {Array.isArray(listings) && listings.filter(x => x.owner === authEmail).map((listing) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={listing.id}>
+                  <ListingCard listing={listing} key={listing.id} />
+                  <Button variant="contained" onClick={handleEdit(listing.id)}>Edit</Button>
+                </Grid>
+              ))}
             </Grid>
-          )}
-        </Box>
-        <Button variant="contained" sx={{ mt: 2 }} onClick={isFormVisible ? handleCreateListing : toggleFormVisibility}>
-          {isFormVisible ? 'Confirm New Listing' : 'Create Listing'}
-        </Button>
+          </>)
+        }
       </Box>
     </>
   );
