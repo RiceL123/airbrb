@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { TextField, Box, Input, Typography, Button, Card, Grid } from '@mui/material';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
 import DoneIcon from '@mui/icons-material/Done';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+
 import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
 import { apiCall, fileToDataUrl } from '../../helpers';
 import ImageCarousel from '../listings/ImageCarousel';
@@ -122,9 +131,18 @@ const ListingToEdit = ({ listingInfo }) => {
   return (
     <>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} sm={8}>
           <Box component="form" sx={{ p: 1, m: 1 }}>
-            <Typography variant="h4">Editing</Typography>
+            <Stack direction='row' justifyContent="space-between">
+              <Typography variant="h4">Editing</Typography>
+              <Button
+                variant='outlined'
+                endIcon={<KeyboardArrowDownIcon />}
+                onClick={() => window.scrollTo(0, document.body.scrollHeight)}
+                sx={{ display: { sm: 'none' } }}>
+                Publish
+              </Button>
+            </Stack>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -133,7 +151,6 @@ const ListingToEdit = ({ listingInfo }) => {
                   defaultValue={listingInfo.title}
                   onChange={handleChange}
                   fullWidth
-                  sx={{ mb: 2 }}
                 />
               </Grid>
               <AddressFields
@@ -182,14 +199,15 @@ const ListingToEdit = ({ listingInfo }) => {
                 />
               </Grid>
               <Grid item xs={12} md={4}>
-                <Button variant="outlined" onClick={handleSubmit}>Cancel</Button>
                 <Button variant="contained" onClick={handleSubmit} endIcon={editSuccess ? <DoneIcon /> : null}>Submit</Button>
               </Grid>
             </Grid>
           </Box>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <PublishListing id={id} availability={availability} setAvailability={setAvailability} />
+        <Grid item xs={12} sm={4}>
+          <Card sx={{ p: 1, mt: 1 }}>
+            <PublishListing id={id} availability={availability} setAvailability={setAvailability} />
+          </Card>
         </Grid>
       </Grid>
     </>

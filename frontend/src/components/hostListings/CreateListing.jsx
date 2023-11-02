@@ -166,7 +166,6 @@ const CreateListing = ({ reloadListings }) => {
     const processImages = Array.from(selectedImages).map((file) => {
       return fileToDataUrl(file)
         .then((fileUrl) => imageUrls.push({ title: file.name, imageUrl: fileUrl }))
-        .catch(() => alert('Invalid image'));
     });
 
     // Wait for all promises to resolve
@@ -180,9 +179,7 @@ const CreateListing = ({ reloadListings }) => {
           },
         });
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch(() => alert('Please ensure all images are png, jpg or jpeg'))
   };
 
   const resetListingData = () => {

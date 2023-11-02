@@ -73,7 +73,7 @@ const PublishListing = ({ id, availability, setAvailability }) => {
               renderInput={(params) => <TextField {...params} />}
             />
           </LocalizationProvider>
-          <Button variant="outlined" onClick={publishListing}>
+          <Button variant="contained" onClick={publishListing}>
             Publish!
           </Button>
         </>)}

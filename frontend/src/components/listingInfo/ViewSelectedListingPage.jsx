@@ -6,7 +6,7 @@ import { apiCall } from '../../helpers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField } from '@mui/material';
+import { Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField, Rating } from '@mui/material';
 
 const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
 
@@ -243,6 +243,13 @@ const ViewSelectedListingPage = () => {
                 onChange={handleReviewInputChange}
                 fullWidth
                 required
+              />
+              <Rating
+                name="simple-controlled"
+                value={review.score}
+                onChange={(e, newValue) => {
+                  setReview({ ...review, score: newValue });
+                }}
               />
             </Grid>
             <Grid item xs={12}>
