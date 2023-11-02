@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Alert, TextField, Box, MenuItem, Input, Typography, Button, CardMedia, Card, Grid } from '@mui/material';
+import { Alert, TextField, Box, Input, Typography, Button, Card, Grid } from '@mui/material';
+import DoneIcon from '@mui/icons-material/Done';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -9,43 +10,72 @@ import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
 import { apiCall, fileToDataUrl } from '../../helpers';
 import ImageCarousel from '../listings/ImageCarousel';
 import AvailabiltyList from './AvailabiltyList';
+import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
+import ThumbnailUpload from './listingProperties/ThumbnailUpload';
+import AddressFields from './listingProperties/AddressFields';
+import NumberField from './listingProperties/NumberField';
 
 const ListingToEdit = ({ listingInfo }) => {
   const { authToken } = useAuth();
   const { id } = useParams();
-  const body = {}
+
+  const [editSuccess, setEditSuccess] = useState(false);
 
   const [title, setTitle] = useState(listingInfo.title);
   const [address, setAddress] = useState(listingInfo.address);
   const [price, setPrice] = useState(listingInfo.price);
   const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail || DEFAULT_CARD_IMG);
-  const [listingImages, setListingImages] = useState(listingInfo.metadata.images);
+
+  const [metadata, setMetadata] = useState(listingInfo.metadata);
+  const [propertyType, setPropertyType] = useState(listingInfo.metadata.propertyType);
+  const [numberBeds, setNumberBeds] = useState(listingInfo.metadata.numberBeds);
+  const [numberBathrooms, setNumberBathrooms] = useState(listingInfo.metadata.numberBathrooms);
+  const [bedrooms, setBedrooms] = useState(listingInfo.metadata.bedrooms);
+  const [amenities, setAmenities] = useState(listingInfo.metadata.amenities);
+  const [images, setImages] = useState(listingInfo.metadata.images);
   const [availability, setAvailability] = useState(listingInfo.availability);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
+  const [payload, setPayload] = useState({
+    title: listingInfo.title,
+    address: listingInfo.address,
+    price: listingInfo.price,
+    thumbnail: listingInfo.thumbnail,
+    metadata: listingInfo.metadata
+  })
+
   useEffect(() => {
-    // Update the body object when title changes
-    body.title = title;
-    body.address = address;
-    body.price = price;
-    body.thumbnail = thumbnail;
-  }, [title, address, price, thumbnail]);
+    setPayload({ title, address, price, thumbnail, metadata })
+  }, [title, address, price, thumbnail, metadata]);
+
+  useEffect(() => {
+    setMetadata({ propertyType, bedrooms, numberBathrooms, amenities, images })
+  }, [propertyType, bedrooms, numberBathrooms, amenities, images])
 
   const handleChange = (e) => {
     e.preventDefault();
     const { name, value } = e.target;
     switch (name) {
       case 'title': setTitle(value); break;
-      case 'address': setAddress(value); break;
-      case 'price': setPrice(value); break;
+      case 'street': setAddress({ ...address, street: value }); break;
+      case 'city': setAddress({ ...address, city: value }); break;
+      case 'state': setAddress({ ...address, state: value }); break;
+      case 'price': setPrice(value); console.log(price); break;
+      case 'propertyType': setPropertyType(value); break;
+      case 'bedrooms': setBedrooms(value); break;
+      case 'numberBathrooms': setNumberBathrooms(value); break;
+      case 'amenities': setAmenities(value); break;
+      case 'numberBeds': setNumberBeds(value); break;
     }
+    console.log(name, value);
+    console.log(payload);
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    apiCall('PUT', authToken, `/listings/${id}`, body)
-      .then(() => console.log('nice it was updated i hope'))
+    apiCall('PUT', authToken, `/listings/${id}`, payload)
+      .then(() => { setEditSuccess(true); setTimeout(() => setEditSuccess(false), 2000) })
       .catch(msg => alert(msg));
   }
 
@@ -72,7 +102,7 @@ const ListingToEdit = ({ listingInfo }) => {
     // Double check this works... you'd need to PUT req rather than edit setListingInfo
     Promise.all(processImages)
       .then(() => {
-        setListingImages(imagesCopy);
+        setImages(imagesCopy);
       });
   };
 
@@ -134,70 +164,30 @@ const ListingToEdit = ({ listingInfo }) => {
                   sx={{ mb: 2 }}
                 />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="address"
-                  label="Address (Street)"
-                  defaultValue={listingInfo.address.street}
-                  onChange={handleChange}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
+              <AddressFields
+                street={address.street}
+                city={address.city}
+                state={address.state}
+                handleChange={handleChange}
+              />
+              <Grid item xs={12}>
+                <NumberField name='price' label='Price (Nightly)' value={price} onChange={handleChange} />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="address"
-                  label="Address (City)"
-                  defaultValue={listingInfo.address.city}
-                  onChange={handleChange}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
+              <Grid item xs={6}>
+                <NumberField name='numberBathrooms' label='Number of Bathrooms' value={numberBathrooms} onChange={handleChange} />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="address"
-                  label="Address (State)"
-                  defaultValue={listingInfo.address.state}
-                  onChange={handleChange}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
+              <Grid item xs={6}>
+                <NumberField name='numberBeds' label='Number of Bedrooms' value={numberBeds} onChange={handleChange} />
+                <NumberField name='numberBathrooms' label='Number of Bathrooms' value={numberBathrooms} onChange={handleChange} />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  name="price"
-                  label="Listing Price (Nightly)"
-                  value={listingInfo.price}
-                  onChange={handleChange}
-                  inputProps={{
-                    inputMode: 'numeric',
-                    pattern: '[0-9]*',
-                  }}
-                  sx={{ mb: 2 }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Card
-                  sx={{ mb: 2, p: 1 }}>
-                  <Typography variant="body1">Thumbnail</Typography>
-                  <CardMedia
-                    sx={{ height: 200, width: 200 }}
-                    image={thumbnail}
-                  />
-                  <Input
-                    name="thumbnail"
-                    label="Thumbnail"
-                    type="file"
-                    onChange={updateThumbnail}
-                  />
-                </Card>
+                <ThumbnailUpload defaultThumbnail={thumbnail} onChange={updateThumbnail} />
               </Grid>
               <Grid item xs={12}>
                 <Card
                   sx={{ mb: 2, p: 1 }}>
                   <Typography variant="body1">Listing Images</Typography>
-                  {Array.isArray(listingImages) && listingImages.length > 0 ? (<ImageCarousel images={listingImages} />) : (<Typography variant="caption">No images available</Typography>)}
+                  {Array.isArray(images) && images.length > 0 ? (<ImageCarousel images={images} />) : (<Typography variant="caption">No images available</Typography>)}
                   <Input
                     name="images"
                     type="file"
@@ -210,26 +200,11 @@ const ListingToEdit = ({ listingInfo }) => {
                 </Card>
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  select
-                  name="propertyType"
-                  label="Property Type"
-                  value={'temp'}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                  sx={{ mb: 2 }}
-                >
-                  <MenuItem value="temp">backend doesnt store this yet so can&apos;t update it</MenuItem>
-                  <MenuItem value="entirePlace">Entire Place</MenuItem>
-                  <MenuItem value="privateRoom">Private Room</MenuItem>
-                  <MenuItem value="hotelRoom">Hotel Room</MenuItem>
-                  <MenuItem value="sharedRoom">Shared Room</MenuItem>
-                </TextField>
+                <PropertyTypeSelect value={propertyType} onChange={handleChange} />
               </Grid>
               <Grid item xs={12}>
-                <Button variant="contained" onClick={handleSubmit}>Submit</Button>
                 <Button variant="outlined" onClick={handleSubmit}>Cancel</Button>
+                <Button variant="contained" onClick={handleSubmit} endIcon={editSuccess ? <DoneIcon /> : null}>Submit</Button>
               </Grid>
             </Grid>
           </Box>

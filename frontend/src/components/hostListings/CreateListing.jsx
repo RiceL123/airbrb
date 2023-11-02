@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { Typography, MenuItem, Grid, Input, Box } from '@mui/material';
+import { Typography, Grid, Input, Box } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
 import { apiCall, fileToDataUrl } from '../../helpers';
+import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
+import ThumbnailUpload from './listingProperties/ThumbnailUpload';
+import AddressFields from './listingProperties/AddressFields';
+import BedroomFields from './listingProperties/BedroomFields';
+import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
+import NumberField from './listingProperties/NumberField';
 
 const CreateListing = () => {
   const { authToken } = useAuth();
+  const [titleError, setTitleError] = useState(false);
+
   const [listingData, setListingData] = useState({
     title: '',
     address: {
@@ -22,6 +30,7 @@ const CreateListing = () => {
       propertyType: '',
       bedrooms: [],
       numberBathrooms: 0,
+      numberBeds: 0,
       amenities: [],
       images: [],
       isLive: false,
@@ -69,7 +78,10 @@ const CreateListing = () => {
   };
 
   const handleCreateListing = async () => {
-    console.log('Pushing data to backend:');
+    if (!listingData.title) {
+      setTitleError(true);
+      return;
+    }
     console.log(listingData);
     const response = await apiCall('POST', authToken, '/listings/new', listingData);
     if (response.ok) {
@@ -97,10 +109,23 @@ const CreateListing = () => {
       ...listingData,
       metadata: {
         ...listingData.metadata,
-        bedrooms: [...listingData.metadata.amenities, newBedroom],
+        bedrooms: [...listingData.metadata.bedrooms, newBedroom],
       },
     });
   };
+
+  const deleteBedroom = (index) => {
+    const updatedBedrooms = [...listingData.metadata.bedrooms];
+    updatedBedrooms.splice(index, 1);
+
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        bedrooms: updatedBedrooms
+      },
+    });
+  }
 
   const handleBedroomChange = (event, index) => {
     const { name, value } = event.target;
@@ -205,6 +230,7 @@ const CreateListing = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
+                  error={titleError}
                   name="title"
                   label="Listing Title"
                   value={listingData.title}
@@ -213,75 +239,34 @@ const CreateListing = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="street"
-                  label="Listing Street Address"
-                  value={listingData.address.street}
-                  onChange={handleInputChangeAddress}
-                  fullWidth
-                  required
-                />
+              <AddressFields
+                street={listingData.address.street}
+                city={listingData.address.city}
+                state={listingData.address.state}
+                handleChange={handleInputChangeAddress}
+              />
+              <Grid item xs={6}>
+                <NumberField name='price' label='Price (Nightly)' value={listingData.price} onChange={handleInputChange} />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="city"
-                  label="Listing Address City"
-                  value={listingData.address.city}
-                  onChange={handleInputChangeAddress}
-                  fullWidth
-                  required
-                />
+              <Grid item xs={6}>
+                <PropertyTypeSelect value={'entirePlace'} onChange={handleInputChangeMetaData} />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="state"
-                  label="Listing Address State"
-                  value={listingData.address.state}
-                  onChange={handleInputChangeAddress}
-                  fullWidth
-                  required
+              <Grid item xs={6}>
+                <NumberField name='numberBathrooms' label='Number of Bathrooms' value={listingData.metadata.numberBathrooms} onChange={handleInputChangeMetaData} />
+              </Grid>
+              <Grid item xs={6}>
+                <NumberField name='numberBeds' label='Number of Bedrooms' value={listingData.metadata.numberBeds} onChange={handleInputChangeMetaData} />
+                <BedroomFields
+                  bedrooms={listingData.metadata.bedrooms}
+                  handleBedroomChange={handleBedroomChange}
+                  addBedroom={addBedroom}
+                  deleteBedroom={deleteBedroom}
                 />
               </Grid>
               <Grid item xs={6}>
-                <TextField
-                  name="price"
-                  label="Listing Price (Nightly)"
-                  value={listingData.price}
-                  onChange={handleInputChange}
-                  fullWidth
-                  inputProps={{
-                    inputMode: 'numeric',
-                    pattern: '[0-9]*',
-                  }}
-                  required
-                />
+                <ThumbnailUpload defaultThumbnail={DEFAULT_CARD_IMG} onChange={handleInputChange} />
               </Grid>
               <Grid item xs={6}>
-                <TextField
-                  select
-                  name="propertyType"
-                  label="Property Type"
-                  defaultValue='entirePlace'
-                  onChange={handleInputChangeMetaData}
-                  fullWidth
-                  required
-                >
-                  <MenuItem value="entirePlace">Entire Place</MenuItem>
-                  <MenuItem value="privateRoom">Private Room</MenuItem>
-                  <MenuItem value="hotelRoom">Hotel Room</MenuItem>
-                  <MenuItem value="sharedRoom">Shared Room</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={4}>
-                <Typography variant="caption">Thumbnail</Typography>
-                <Input
-                  name="thumbnail"
-                  type="file"
-                  onChange={handleInputChange}
-                />
-              </Grid>
-              <Grid item xs={4}>
                 <Typography variant="caption">Images</Typography>
                 <Input
                   name="images"
@@ -292,44 +277,7 @@ const CreateListing = () => {
                   onChange={addImages}
                 />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="numberBathrooms"
-                  label="Number of bathrooms"
-                  value={listingData.numberBathrooms}
-                  onChange={handleInputChangeMetaData}
-                  fullWidth
-                  inputProps={{
-                    inputMode: 'numeric',
-                    pattern: '[0-9]*',
-                  }}
-                  required
-                />
-              </Grid>
-              <Grid item xs={6}>
-                {listingData.metadata.bedrooms.map((bedroom, index) => (
-                  <div key={index}>
-                    <TextField
-                      name="name"
-                      label="Bedroom Name"
-                      value={bedroom.name}
-                      onChange={(e) => handleBedroomChange(e, index)}
-                      required
-                    />
-                    <TextField
-                      name="beds"
-                      label="Number of Beds"
-                      value={bedroom.beds}
-                      onChange={(e) => handleBedroomChange(e, index)}
-                      required
-                    />
-                  </div>
-                ))}
-                <Button variant="contained" onClick={addBedroom}>
-                  Add Bedroom
-                </Button>
-              </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12}>
                 {listingData.metadata.amenities.map((amenity, index) => (
                   <div key={index}>
                     <TextField

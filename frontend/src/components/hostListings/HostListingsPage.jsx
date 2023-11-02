@@ -19,7 +19,6 @@ const HostListingsPage = () => {
     if (response.ok) {
       const data = await response.json();
       setListings(data.listings);
-      console.log(data);
     } else {
       console.error('Getting all listings failed.');
     }
