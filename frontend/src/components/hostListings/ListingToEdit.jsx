@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { TextField, Box, MenuItem, Input, Typography, Button, CardMedia, Card, Grid } from '@mui/material';
+import { Alert, TextField, Box, MenuItem, Input, Typography, Button, CardMedia, Card, Grid } from '@mui/material';
 
 import { apiCall, fileToDataUrl } from '../../helpers';
 import ImageCarousel from '../listings/ImageCarousel';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 const ListingToEdit = ({ listingInfo }) => {
   const { authToken } = useAuth();
@@ -23,6 +26,8 @@ const ListingToEdit = ({ listingInfo }) => {
   we convert to
   [[filename, url], [filename, url], etc, etc]
   */
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   useEffect(() => {
     // Update the body object when title changes
@@ -79,118 +84,151 @@ const ListingToEdit = ({ listingInfo }) => {
   //   const res = apiCall('PUT', authToken, `/listingInfos/${id}`, body)
   // }
 
+  const publishListing = () => {
+    console.log('hi');
+  }
+
   return (
-    <Box component="form">
+    <>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <TextField
-            name="title"
-            label="title"
-            defaultValue={listingInfo.title}
-            onChange={handleChange}
-            fullWidth
-            sx={{ mb: 2 }}
-          />
+        <Grid item xs={8}>
+          <Box component="form" sx={{ p: 1, m: 1 }}>
+            <Typography variant="h6">Editing</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  name="title"
+                  label="title"
+                  defaultValue={listingInfo.title}
+                  onChange={handleChange}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                name="address"
+                label="Address (Street)"
+                defaultValue={listingInfo.address.street}
+                onChange={handleChange}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                name="address"
+                label="Address (City)"
+                defaultValue={listingInfo.address.city}
+                onChange={handleChange}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                name="address"
+                label="Address (State)"
+                defaultValue={listingInfo.address.state}
+                onChange={handleChange}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                name="price"
+                label="Listing Price (Nightly)"
+                value={listingInfo.price}
+                onChange={handleChange}
+                inputProps={{
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*',
+                }}
+                sx={{ mb: 2 }}
+              />
+              </Grid>
+              <Grid item xs={12}>
+                <Card
+                sx={{ mb: 2, p: 1 }}>
+                <Typography variant="body1">Thumbnail</Typography>
+                <CardMedia
+                  sx={{ height: 200, width: 200 }}
+                  image={thumbnail}
+                />
+                <Input
+                  name="thumbnail"
+                  label="Thumbnail"
+                  type="file"
+                  onChange={updateThumbnail}
+                />
+              </Card>
+              </Grid>
+              <Grid item xs={12}>
+                <Card
+                  sx={{ mb: 2, p: 1 }}>
+                  <Typography variant="body1">Listing Images</Typography>
+                  {Array.isArray(listingImages) && listingImages.length > 0 ? (<ImageCarousel images={listingImages} />) : (<Typography variant="caption">No images available</Typography>)}
+                  <Input
+                    name="images"
+                    type="file"
+                    inputProps={{
+                      multiple: true,
+                    }}
+                    onChange={addImages}
+                    sx={{ mb: 2 }}
+                  />
+                </Card>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                select
+                name="propertyType"
+                label="Property Type"
+                value={'temp'}
+                onChange={handleChange}
+                fullWidth
+                required
+                sx={{ mb: 2 }}
+              >
+                <MenuItem value="temp">backend doesnt store this yet so can&apos;t update it</MenuItem>
+                <MenuItem value="entirePlace">Entire Place</MenuItem>
+                <MenuItem value="privateRoom">Private Room</MenuItem>
+                <MenuItem value="hotelRoom">Hotel Room</MenuItem>
+                <MenuItem value="sharedRoom">Shared Room</MenuItem>
+              </TextField>
+              </Grid>
+              <Grid item xs={12}>
+                <Button variant="contained" onClick={handleSubmit}>Submit</Button>
+                <Button variant="outlined" onClick={handleSubmit}>Cancel</Button>
+              </Grid>
+            </Grid>
+          </Box>
         </Grid>
+
         <Grid item xs={4}>
-          <TextField
-          name="address"
-          label="Address (Street)"
-          defaultValue={listingInfo.address.street}
-          onChange={handleChange}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
-        </Grid>
-        <Grid item xs={4}>
-          <TextField
-          name="address"
-          label="Address (City)"
-          defaultValue={listingInfo.address.city}
-          onChange={handleChange}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
-        </Grid>
-        <Grid item xs={4}>
-          <TextField
-          name="address"
-          label="Address (State)"
-          defaultValue={listingInfo.address.state}
-          onChange={handleChange}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-          name="price"
-          label="Listing Price (Nightly)"
-          value={listingInfo.price}
-          onChange={handleChange}
-          inputProps={{
-            inputMode: 'numeric',
-            pattern: '[0-9]*',
-          }}
-          sx={{ mb: 2 }}
-        />
-        </Grid>
-        <Grid item xs={12}>
-          <Card
-          sx={{ mb: 2, p: 1 }}>
-          <Typography variant="body1">Thumbnail</Typography>
-          <CardMedia
-            sx={{ height: 200, width: 200 }}
-            image={thumbnail}
-          />
-          <Input
-            name="thumbnail"
-            label="Thumbnail"
-            type="file"
-            onChange={updateThumbnail}
-          />
-        </Card>
-        </Grid>
-        <Grid item xs={12}>
-          <Card
-            sx={{ mb: 2, p: 1 }}>
-            <Typography variant="body1">Listing Images</Typography>
-            {Array.isArray(listingImages) && listingImages.length > 0 ? (<ImageCarousel images={listingImages} />) : (<Typography variant="caption">No images available</Typography>)}
-            <Input
-              name="images"
-              type="file"
-              inputProps={{
-                multiple: true,
-              }}
-              onChange={addImages}
-              sx={{ mb: 2 }}
-            />
-          </Card>
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-          select
-          name="propertyType"
-          label="Property Type"
-          value={'temp'}
-          onChange={handleChange}
-          fullWidth
-          required
-          sx={{ mb: 2 }}
-        >
-          <MenuItem value="temp">backend doesnt store this yet so can&apos;t update it</MenuItem>
-          <MenuItem value="entirePlace">Entire Place</MenuItem>
-          <MenuItem value="privateRoom">Private Room</MenuItem>
-          <MenuItem value="hotelRoom">Hotel Room</MenuItem>
-          <MenuItem value="sharedRoom">Shared Room</MenuItem>
-        </TextField>
-        </Grid>
-        <Grid item xs={12}>
-          <Button variant="contained" onClick={handleSubmit}>Submit</Button>
-          <Button variant="outlined" onClick={handleSubmit}>Cancel</Button>
+          <Box section="section" sx={{ p: 1, m: 1 }}>
+            <Typography variant="h6">Publishing</Typography>
+            <Alert severity="info">Pick certain dates to make available for guests.</Alert>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Start Date"
+                value={startDate}
+                onChange={(date) => setStartDate(date)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <DatePicker
+                label="End Date"
+                value={endDate}
+                onChange={(date) => setEndDate(date)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+            <Button variant="outlined" onClick={publishListing}>Publish!</Button>
+          </Box>
         </Grid>
       </Grid>
-    </Box>
+    </>
   );
 }
 

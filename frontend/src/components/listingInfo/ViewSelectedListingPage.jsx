@@ -113,7 +113,7 @@ const ViewSelectedListingPage = () => {
   }, [id, authToken]);
 
   return (
-    <>
+    <Box section="section" sx={{ p: 1, m: 1 }}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Box sx={{ height: 200 }}>
@@ -263,7 +263,7 @@ const ViewSelectedListingPage = () => {
           </Grid>
         </Grid>
       </Grid>
-    </>
+    </Box>
   );
 }
 
