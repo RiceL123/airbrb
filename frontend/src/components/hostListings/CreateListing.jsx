@@ -73,7 +73,6 @@ const CreateListing = () => {
     console.log(listingData);
     const response = await apiCall('POST', authToken, '/listings/new', listingData);
     if (response.ok) {
-      // const { listingId } = await response.json();
       resetListingData();
       toggleFormVisibility();
     } else {
