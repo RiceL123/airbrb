@@ -6,7 +6,7 @@ import { apiCall } from '../../helpers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Alert, Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField } from '@mui/material';
+import { Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField } from '@mui/material';
 
 const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
 
@@ -129,7 +129,7 @@ const ViewSelectedListingPage = () => {
           </Box>
         </Grid>
         <Grid item xs={8}>
-          <Alert severity="error">{listingData.isLive ? null : 'Property is NOT live. Cannot book.'}</Alert>
+          <Typography variant="caption">{listingData.published ? null : 'Property is NOT live. Cannot book.'}</Typography>
           <Typography variant="h6">
             Details for {listingData.title}
           </Typography>

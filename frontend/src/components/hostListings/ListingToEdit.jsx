@@ -84,8 +84,36 @@ const ListingToEdit = ({ listingInfo }) => {
   //   const res = apiCall('PUT', authToken, `/listingInfos/${id}`, body)
   // }
 
+  const publishListingRequest = async () => {
+    const body = {
+      availability: {
+        startDate,
+        endDate,
+      }
+    };
+    const response = await apiCall('PUT', authToken, '/listings/publish/' + id, body);
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      alert('Published!');
+    } else {
+      alert('Error occurred while publishing liting.');
+    }
+  }
+
   const publishListing = () => {
-    console.log('hi');
+    if (startDate && endDate) {
+      if (startDate < endDate) {
+        publishListingRequest()
+          .catch((error) => {
+            console.log(error);
+          });
+      } else {
+        alert('Start date must be before end date');
+      }
+    } else {
+      alert('Please select both startDate and endDate.');
+    }
   }
 
   return (
