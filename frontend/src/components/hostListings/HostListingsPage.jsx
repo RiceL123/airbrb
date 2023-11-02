@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
+
 import { Typography, Grid, Button } from '@mui/material';
 import { Box } from '@mui/system';
+
+import { useAuth } from '../auth/AuthContext';
 import ListingCard from '../listings/ListingCard';
 import CreateListing from './CreateListing';
 import { apiCall } from '../../helpers';

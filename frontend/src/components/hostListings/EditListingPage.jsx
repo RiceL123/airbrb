@@ -39,7 +39,6 @@ const EditListingPage = () => {
         : (<>
           {hasPermission
             ? (<>
-              <Typography variant="h2">Editing for Listing ID: {id}</Typography>
               <ListingToEdit listingInfo={listingInfo}/>
             </>)
             : (<Typography variant="h2">
