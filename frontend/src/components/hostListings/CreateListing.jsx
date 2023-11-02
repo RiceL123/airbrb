@@ -262,7 +262,7 @@ const CreateListing = () => {
                   select
                   name="propertyType"
                   label="Property Type"
-                  value={listingData.metadata.propertyType}
+                  defaultValue='entirePlace'
                   onChange={handleInputChangeMetaData}
                   fullWidth
                   required
