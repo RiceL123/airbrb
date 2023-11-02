@@ -141,7 +141,7 @@ const ViewSelectedListingPage = () => {
                     Address: {listingData.address && `${listingData.address.street}, ${listingData.address.city}, ${listingData.address.state}`}
                   </Typography>
                   <Typography variant="body1">
-                    Property Type: {listingData.propertyType}
+                    Property Type: {listingData.metadata && listingData.metadata.propertyType}
                   </Typography>
                   <Typography variant="body1">
                     Price per night: ${listingData.price}
