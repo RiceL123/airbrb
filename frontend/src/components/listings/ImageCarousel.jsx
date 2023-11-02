@@ -29,7 +29,7 @@ const ImageCarousel = ({ images }) => {
           >
             {images.map(({ title, imageUrl }, index) => (
               <Tab
-                key={title}
+                key={index}
                 label={title}
                 value={index}
               />
@@ -48,7 +48,7 @@ const ImageCarousel = ({ images }) => {
             </CardContent>
           </Card>
         </>)
-        : (<ImageList sx={{ width: '100%', height: 450 }} >
+        : (<ImageList rowHeight={160} cols={4} >
           {
             images.map((item, index) => (
               <ImageListItem key={index}>
@@ -56,7 +56,7 @@ const ImageCarousel = ({ images }) => {
                   srcSet={`${item.imageUrl}`}
                   src={`${item.imageUrl}`}
                   alt={item.title}
-                  style={{ maxHeight: 400 }}
+                  style={{ maxHeight: '100%' }}
                   loading="lazy"
                 />
                 <ImageListItemBar

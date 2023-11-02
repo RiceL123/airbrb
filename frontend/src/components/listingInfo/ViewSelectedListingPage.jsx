@@ -168,7 +168,7 @@ const ViewSelectedListingPage = () => {
               <List>
                 {listingData.metadata && listingData.metadata.amenities && listingData.metadata.amenities.map((amenity, index) => (
                   <ListItem key={index}>
-                    <ListItemText primary={`✅ ${amenity.name}`} />
+                    <ListItemText primary={`✅ ${amenity}`} />
                   </ListItem>
                 ))}
               </List>
@@ -181,11 +181,11 @@ const ViewSelectedListingPage = () => {
             </Grid>
             <Grid item xs={12}>
               <ImageList rowHeight={160} cols={4}>
-              {listingData.metadata && listingData.metadata.images && (listingData.metadata.images).map(obj => Object.entries(obj)[0]).map(([filename, fileUrl]) => (
-                <ImageListItem key={filename} cols={1}>
-                  <img src={fileUrl} alt={filename} />
-                </ImageListItem>
-              ))}
+                {listingData.metadata && listingData.metadata.images && (listingData.metadata.images).map(({ title, imageUrl }, index) => (
+                  <ImageListItem key={index} cols={1}>
+                    <img src={imageUrl} alt={title} />
+                  </ImageListItem>
+                ))}
               </ImageList>
             </Grid>
 

@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { Typography, Grid, Input, Box } from '@mui/material';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import Input from '@mui/material/Input';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
 import { apiCall, fileToDataUrl } from '../../helpers';
+import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
 import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
 import ThumbnailUpload from './listingProperties/ThumbnailUpload';
 import AddressFields from './listingProperties/AddressFields';
-import BedroomFields from './listingProperties/BedroomFields';
-import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
 import NumberField from './listingProperties/NumberField';
+import AmenitiesFields from './listingProperties/AmenitiesFields';
+import ImageCarousel from '../listings/ImageCarousel';
 
-const CreateListing = () => {
+const CreateListing = ({ reloadListings }) => {
   const { authToken } = useAuth();
   const [titleError, setTitleError] = useState(false);
 
@@ -41,7 +46,7 @@ const CreateListing = () => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     if (name === 'price') {
-      // Make sure price is a number
+      // Make sure value is a number
       if (/^\d+$/.test(value) || value === '') {
         setListingData({ ...listingData, [name]: value });
       }
@@ -68,24 +73,39 @@ const CreateListing = () => {
 
   const handleInputChangeMetaData = (event) => {
     const { name, value } = event.target;
-    setListingData({
-      ...listingData,
-      metadata: {
-        ...listingData.metadata,
-        [name]: value,
-      },
-    });
+
+    if (name === 'numberBathrooms' || name === 'numberBeds') {
+      if (/^\d+$/.test(value) || value === '') {
+        setListingData({
+          ...listingData,
+          metadata: {
+            ...listingData.metadata,
+            [name]: value,
+          },
+        });
+      }
+    } else {
+      setListingData({
+        ...listingData,
+        metadata: {
+          ...listingData.metadata,
+          [name]: value,
+        },
+      });
+    }
   };
 
   const handleCreateListing = async () => {
     if (!listingData.title) {
       setTitleError(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     console.log(listingData);
     const response = await apiCall('POST', authToken, '/listings/new', listingData);
     if (response.ok) {
       resetListingData();
+      reloadListings();
       toggleFormVisibility();
     } else {
       alert(response.statusText);
@@ -103,45 +123,8 @@ const CreateListing = () => {
     setIsFormVisible(!isFormVisible);
   };
 
-  const addBedroom = () => {
-    const newBedroom = { name: '', beds: 0 };
-    setListingData({
-      ...listingData,
-      metadata: {
-        ...listingData.metadata,
-        bedrooms: [...listingData.metadata.bedrooms, newBedroom],
-      },
-    });
-  };
-
-  const deleteBedroom = (index) => {
-    const updatedBedrooms = [...listingData.metadata.bedrooms];
-    updatedBedrooms.splice(index, 1);
-
-    setListingData({
-      ...listingData,
-      metadata: {
-        ...listingData.metadata,
-        bedrooms: updatedBedrooms
-      },
-    });
-  }
-
-  const handleBedroomChange = (event, index) => {
-    const { name, value } = event.target;
-    const updatedBedrooms = [...listingData.metadata.bedrooms];
-    updatedBedrooms[index][name] = value;
-    setListingData({
-      ...listingData,
-      metadata: {
-        ...listingData.metadata,
-        bedrooms: updatedBedrooms,
-      },
-    });
-  };
-
   const addAmenity = () => {
-    const newAmenity = { name: '' };
+    const newAmenity = '';
     setListingData({
       ...listingData,
       metadata: {
@@ -151,10 +134,22 @@ const CreateListing = () => {
     });
   };
 
-  const handleAmenityChange = (event, index) => {
-    const { name, value } = event.target;
+  const deleteAmenity = (index) => {
     const updatedAmenities = [...listingData.metadata.amenities];
-    updatedAmenities[index][name] = value;
+    updatedAmenities.splice(index, 1);
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        amenities: updatedAmenities,
+      },
+    });
+  }
+
+  const handleAmenityChange = (event, index) => {
+    const { value } = event.target;
+    const updatedAmenities = [...listingData.metadata.amenities];
+    updatedAmenities[index] = value;
     setListingData({
       ...listingData,
       metadata: {
@@ -166,31 +161,24 @@ const CreateListing = () => {
 
   const addImages = (event) => {
     const selectedImages = event.target.files;
+    const imageUrls = [];
 
-    // Create an array of promises to process the selected images
     const processImages = Array.from(selectedImages).map((file) => {
       return fileToDataUrl(file)
-        .then((fileUrl) => {
-          // Update state
-          setListingData((prevData) => ({
-            ...prevData,
-            metadata: {
-              ...prevData.metadata,
-              images: [
-                ...(prevData.metadata.images || []),
-                { [file.name]: fileUrl },
-              ],
-            },
-          }));
-        })
-        .catch(() => {
-          alert('Invalid image');
-        });
+        .then((fileUrl) => imageUrls.push({ title: file.name, imageUrl: fileUrl }))
+        .catch(() => alert('Invalid image'));
     });
 
     // Wait for all promises to resolve
     Promise.all(processImages)
       .then(() => {
+        setListingData({
+          ...listingData,
+          metadata: {
+            ...listingData.metadata,
+            images: imageUrls,
+          },
+        });
       })
       .catch((error) => {
         console.error(error);
@@ -256,51 +244,44 @@ const CreateListing = () => {
               </Grid>
               <Grid item xs={6}>
                 <NumberField name='numberBeds' label='Number of Bedrooms' value={listingData.metadata.numberBeds} onChange={handleInputChangeMetaData} />
-                <BedroomFields
-                  bedrooms={listingData.metadata.bedrooms}
-                  handleBedroomChange={handleBedroomChange}
-                  addBedroom={addBedroom}
-                  deleteBedroom={deleteBedroom}
-                />
               </Grid>
               <Grid item xs={6}>
                 <ThumbnailUpload defaultThumbnail={DEFAULT_CARD_IMG} onChange={handleInputChange} />
               </Grid>
               <Grid item xs={6}>
-                <Typography variant="caption">Images</Typography>
-                <Input
-                  name="images"
-                  type="file"
-                  inputProps={{
-                    multiple: true
-                  }}
-                  onChange={addImages}
-                />
+                <Card
+                  sx={{ mb: 2, p: 1 }}>
+                  <Typography variant="body1">Listing Images</Typography>
+                  {Array.isArray(listingData.metadata.images) && listingData.metadata.images.length > 0
+                    ? (<ImageCarousel images={listingData.metadata.images} />)
+                    : (<Typography variant="caption">No images available</Typography>)}
+                  <Input
+                    name="images"
+                    type="file"
+                    inputProps={{
+                      multiple: true,
+                    }}
+                    onChange={addImages}
+                    sx={{ mb: 2 }}
+                  />
+                </Card>
               </Grid>
               <Grid item xs={12}>
-                {listingData.metadata.amenities.map((amenity, index) => (
-                  <div key={index}>
-                    <TextField
-                      name="name"
-                      label="Amenitities Name"
-                      value={amenity.name}
-                      onChange={(e) => handleAmenityChange(e, index)}
-                      required
-                    />
-                  </div>
-                ))}
-                <Button variant="contained" onClick={addAmenity}>
-                  Add Amenity
-                </Button>
+                <AmenitiesFields
+                  amenities={listingData.metadata.amenities}
+                  handleAmenityChange={handleAmenityChange}
+                  addAmenity={addAmenity}
+                  deleteAmenity={deleteAmenity}
+                />
               </Grid>
             </Grid>
           )}
         </Box>
-        <Button variant="contained" sx={{ mt: 2 }} onClick={isFormVisible ? handleCreateListing : toggleFormVisibility}>
+        <Button variant="contained" sx={{ mt: 2, mr: 2 }} onClick={isFormVisible ? handleCreateListing : toggleFormVisibility}>
           {isFormVisible ? 'Confirm New Listing' : 'Create Listing'}
         </Button>
         {isFormVisible
-          ? <Button variant="contained" sx={{ mt: 2 }} onClick={handleCancelCreate}>
+          ? <Button color='error' variant="outlined" sx={{ mt: 2 }} onClick={handleCancelCreate}>
             Cancel
           </Button>
           : <></>

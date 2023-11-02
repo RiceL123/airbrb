@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Alert, TextField, Box, Input, Typography, Button, Card, Grid } from '@mui/material';
+import { TextField, Box, Input, Typography, Button, Card, Grid } from '@mui/material';
 import DoneIcon from '@mui/icons-material/Done';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
 import { apiCall, fileToDataUrl } from '../../helpers';
 import ImageCarousel from '../listings/ImageCarousel';
-import AvailabiltyList from './AvailabiltyList';
 import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
 import ThumbnailUpload from './listingProperties/ThumbnailUpload';
 import AddressFields from './listingProperties/AddressFields';
 import NumberField from './listingProperties/NumberField';
+import AmenitiesFields from './listingProperties/AmenitiesFields';
+import PublishListing from './PublishListing';
 
 const ListingToEdit = ({ listingInfo }) => {
   const { authToken } = useAuth();
@@ -24,7 +22,8 @@ const ListingToEdit = ({ listingInfo }) => {
   const [title, setTitle] = useState(listingInfo.title);
   const [address, setAddress] = useState(listingInfo.address);
   const [price, setPrice] = useState(listingInfo.price);
-  const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail || DEFAULT_CARD_IMG);
+  const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail);
+  const [availability, setAvailability] = useState(listingInfo.availability);
 
   const [metadata, setMetadata] = useState(listingInfo.metadata);
   const [propertyType, setPropertyType] = useState(listingInfo.metadata.propertyType);
@@ -33,9 +32,6 @@ const ListingToEdit = ({ listingInfo }) => {
   const [bedrooms, setBedrooms] = useState(listingInfo.metadata.bedrooms);
   const [amenities, setAmenities] = useState(listingInfo.metadata.amenities);
   const [images, setImages] = useState(listingInfo.metadata.images);
-  const [availability, setAvailability] = useState(listingInfo.availability);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
 
   const [payload, setPayload] = useState({
     title: listingInfo.title,
@@ -61,19 +57,18 @@ const ListingToEdit = ({ listingInfo }) => {
       case 'street': setAddress({ ...address, street: value }); break;
       case 'city': setAddress({ ...address, city: value }); break;
       case 'state': setAddress({ ...address, state: value }); break;
-      case 'price': setPrice(value); console.log(price); break;
+      case 'price': if (/^\d+$/.test(value) || value === '') setPrice(value); break;
       case 'propertyType': setPropertyType(value); break;
       case 'bedrooms': setBedrooms(value); break;
-      case 'numberBathrooms': setNumberBathrooms(value); break;
-      case 'amenities': setAmenities(value); break;
-      case 'numberBeds': setNumberBeds(value); break;
+      case 'numberBathrooms': if (/^\d+$/.test(value) || value === '') setNumberBathrooms(value); break;
+      case 'numberBeds': if (/^\d+$/.test(value) || value === '') setNumberBeds(value); break;
+      // case 'amenities': setAmenities(value); break;
     }
-    console.log(name, value);
-    console.log(payload);
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     apiCall('PUT', authToken, `/listings/${id}`, payload)
       .then(() => { setEditSuccess(true); setTimeout(() => setEditSuccess(false), 2000) })
       .catch(msg => alert(msg));
@@ -89,70 +84,47 @@ const ListingToEdit = ({ listingInfo }) => {
   const addImages = (e) => {
     console.log(Array.from(e.target.files));
     const selectedImages = e.target.files;
-    const imagesCopy = [...listingInfo.metadata.images];
+    // const imagesCopy = [...listingInfo.metadata.images]; // instead of appended just reset
+    const imagesCopy = [];
 
     const processImages = Array.from(selectedImages).map((file) => {
       return fileToDataUrl(file)
         .then((fileUrl) => {
           imagesCopy.push({ title: file.name, imageUrl: fileUrl });
         })
-        .catch(() => alert('Invalid image'));
     });
 
     // Double check this works... you'd need to PUT req rather than edit setListingInfo
     Promise.all(processImages)
       .then(() => {
         setImages(imagesCopy);
-      });
+      })
+      .catch(() => alert('please ensure all images are png or jpg'))
   };
 
-  const publishListingRequest = async () => {
-    console.log(availability);
-    const newAvailability = availability.slice(); // make a copy
-    newAvailability.push({
-      startDate: startDate.format('YYYY-MM-DD'),
-      endDate: endDate.format('YYYY-MM-DD')
-    });
-    console.log(newAvailability);
-
-    const response = await apiCall('PUT', authToken, '/listings/publish/' + id, { availability: newAvailability });
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-      alert('Published!');
-      setAvailability(newAvailability);
-    } else {
-      alert('Error occurred while publishing liting.');
-    }
+  const addAmenity = () => {
+    setAmenities([...amenities, '']);
   }
 
-  const publishListing = () => {
-    if (startDate && endDate) {
-      if (startDate < endDate) {
-        publishListingRequest()
-          .catch((error) => {
-            console.log(error);
-          });
-      } else {
-        alert('Start date must be before end date');
-      }
-    } else {
-      alert('Please select both startDate and endDate.');
-    }
+  const deleteAmenity = (index) => {
+    const updatedAmenities = [...amenities];
+    updatedAmenities.splice(index, 1);
+    setAmenities(updatedAmenities);
   }
 
-  const unPublishListing = async () => {
-    const response = await apiCall('PUT', authToken, `/listings/unpublish/${id}`);
-    if (response.ok) setAvailability([]);
-    else alert('Error occurred while unpublishing listing.');
-  }
+  const handleAmenityChange = (event, index) => {
+    const { value } = event.target;
+    const updatedAmenities = [...amenities];
+    updatedAmenities[index] = value;
+    setAmenities(updatedAmenities);
+  };
 
   return (
     <>
       <Grid container spacing={2}>
-        <Grid item xs={8}>
+        <Grid item xs={12} md={8}>
           <Box component="form" sx={{ p: 1, m: 1 }}>
-            <Typography variant="h6">Editing</Typography>
+            <Typography variant="h4">Editing</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -170,18 +142,20 @@ const ListingToEdit = ({ listingInfo }) => {
                 state={address.state}
                 handleChange={handleChange}
               />
-              <Grid item xs={12}>
+              <Grid item xs={12} md={6}>
                 <NumberField name='price' label='Price (Nightly)' value={price} onChange={handleChange} />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
+                <PropertyTypeSelect value={propertyType} onChange={handleChange} />
+              </Grid>
+              <Grid item xs={12} md={6}>
                 <NumberField name='numberBathrooms' label='Number of Bathrooms' value={numberBathrooms} onChange={handleChange} />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
                 <NumberField name='numberBeds' label='Number of Bedrooms' value={numberBeds} onChange={handleChange} />
-                <NumberField name='numberBathrooms' label='Number of Bathrooms' value={numberBathrooms} onChange={handleChange} />
               </Grid>
               <Grid item xs={12}>
-                <ThumbnailUpload defaultThumbnail={thumbnail} onChange={updateThumbnail} />
+                <ThumbnailUpload defaultThumbnail={thumbnail || DEFAULT_CARD_IMG} onChange={updateThumbnail} />
               </Grid>
               <Grid item xs={12}>
                 <Card
@@ -200,43 +174,22 @@ const ListingToEdit = ({ listingInfo }) => {
                 </Card>
               </Grid>
               <Grid item xs={12}>
-                <PropertyTypeSelect value={propertyType} onChange={handleChange} />
+                <AmenitiesFields
+                  amenities={amenities}
+                  handleAmenityChange={handleAmenityChange}
+                  addAmenity={addAmenity}
+                  deleteAmenity={deleteAmenity}
+                />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} md={4}>
                 <Button variant="outlined" onClick={handleSubmit}>Cancel</Button>
                 <Button variant="contained" onClick={handleSubmit} endIcon={editSuccess ? <DoneIcon /> : null}>Submit</Button>
               </Grid>
             </Grid>
           </Box>
         </Grid>
-
-        <Grid item xs={4}>
-          {availability.length >= 1
-            ? (<Box>
-              <Typography variant="h6">Current Availabilities</Typography>
-              <AvailabiltyList availabilites={availability} />
-              <Button variant="outlined" onClick={unPublishListing}>unPublish</Button>
-            </Box>)
-            : (<Box section="section" sx={{ p: 1, m: 1 }}>
-              <Typography variant="h6">Publishing</Typography>
-              <Alert severity="info">Pick certain dates to make available for guests.</Alert>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Start Date"
-                  value={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-                <DatePicker
-                  label="End Date"
-                  value={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </LocalizationProvider>
-              <Button variant="outlined" onClick={publishListing}>Publish!</Button>
-            </Box>)
-          }
+        <Grid item xs={12} md={4}>
+          <PublishListing id={id} availability={availability} setAvailability={setAvailability} />
         </Grid>
       </Grid>
     </>

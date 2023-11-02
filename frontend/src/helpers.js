@@ -28,13 +28,11 @@ export const apiCall = (method, token, path, body) => {
 export const fileToDataUrl = (file) => {
   const validFileTypes = ['image/jpeg', 'image/png', 'image/jpg']
   const valid = validFileTypes.find(type => type === file.type);
-  // Bad data, let's walk away.
-  if (!valid) {
-    throw Error('provided file is not a png, jpg or jpeg image.');
-  }
-
   const reader = new FileReader();
   const dataUrlPromise = new Promise((resolve, reject) => {
+    if (!valid) {
+      reject(new Error('provided file is not a png, jpg or jpeg image.'));
+    }
     reader.onerror = reject;
     reader.onload = () => resolve(reader.result);
   });
