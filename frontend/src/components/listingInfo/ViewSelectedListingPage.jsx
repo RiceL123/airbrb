@@ -8,6 +8,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField, Rating } from '@mui/material';
 
+import RatingDisplay from '../listings/RatingDisplay';
+
 const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
 
 const ViewSelectedListingPage = () => {
@@ -164,6 +166,7 @@ const ViewSelectedListingPage = () => {
                   <Typography variant="body1">
                     Price per night: ${listingData.price}
                   </Typography>
+                  <RatingDisplay listing={listingData}/>
                 </CardContent>
               </Card>
             </Grid>
