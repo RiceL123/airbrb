@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
+
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -8,9 +10,10 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
+import AddHomeIcon from '@mui/icons-material/AddHome';
+import HomeIcon from '@mui/icons-material/Home';
 
 const MenuToggle = () => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -31,29 +34,31 @@ const MenuToggle = () => {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
+        <ListItem key='View Hosted' disablePadding>
+          <ListItemButton component={Link} to="/hosted">
               <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  <AddBusinessIcon/>
               </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
+              <ListItemText primary={'View Hosted'} />
+          </ListItemButton>
+        </ListItem>
+        <ListItem key='View All Listings' disablePadding>
+          <ListItemButton component={Link} to="/">
               <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  <HomeIcon/>
               </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+              <ListItemText primary={'View All Listings'} />
+          </ListItemButton>
+        </ListItem>
+        <Divider/>
+        <ListItem key='Bookings' disablePadding>
+          <ListItemButton component={Link} to="/bookings">
+            <ListItemIcon>
+                <AddHomeIcon/>
+            </ListItemIcon>
+            <ListItemText primary={'Bookings'} />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Box>
   );

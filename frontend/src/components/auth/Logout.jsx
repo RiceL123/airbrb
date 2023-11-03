@@ -8,13 +8,9 @@ const Logout = () => {
   const { authToken, logout } = useAuth();
 
   const handleLogout = async () => {
-    const res = await apiCall('POST', authToken, '/user/auth/logout')
-    if (res.ok) {
-      logout();
-      naviagte('/');
-    } else {
-      alert(res.statusText);
-    }
+    await apiCall('POST', authToken, '/user/auth/logout');
+    logout();
+    naviagte('/');
   }
   return (
     <Button variant="contained" onClick={handleLogout}>Logout</Button>
