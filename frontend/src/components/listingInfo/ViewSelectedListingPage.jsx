@@ -6,7 +6,7 @@ import { apiCall } from '../../helpers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField } from '@mui/material';
+import { Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField, Rating } from '@mui/material';
 
 const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
 
@@ -20,26 +20,7 @@ const ViewSelectedListingPage = () => {
     score: 0,
     comment: '',
   })
-
-  const publishListingRequest = async (bId) => {
-    const newBooking = {
-      bookingId: bId,
-      bookingUserEmail: authEmail,
-      bookingStatus: 'pending',
-    };
-    setListingData({
-      ...listingData,
-      metadata: {
-        ...listingData.metadata,
-        bookings: [...listingData.metadata.bookings, newBooking],
-      },
-    });
-
-    const response = await apiCall('PUT', authToken, '/listings/' + id, listingData);
-    if (response.ok) {
-      console.log('Booking successfully put into database.');
-    }
-  }
+  const [bookings, setBookings] = useState([]);
 
   const sendBookingRequest = async (body) => {
     const response = await apiCall('POST', authToken, '/bookings/new/' + id, body);
@@ -47,9 +28,6 @@ const ViewSelectedListingPage = () => {
       const data = await response.json();
       console.log(data);
       alert('Booking has been sent!');
-
-      // Update listing
-      publishListingRequest(data.bookingId);
     } else {
       const data = await response.json();
       console.log(data);
@@ -93,31 +71,48 @@ const ViewSelectedListingPage = () => {
     }
   }
 
-  const sendReview = async () => {
-    const bookingId = 0; // WE NEED A BOOKING IDEA FIRST (need to publish website, then check booking, then check reviews)
-    const body = {
-      review: {
-        score: review.score,
-        name: authEmail,
-        bookingId,
-        comment: review.comment,
-      }
+  const getAllBookings = async () => {
+    const response = await apiCall('GET', authToken, '/bookings', undefined);
+    if (response.ok) {
+      const data = await response.json();
+      setBookings(data.bookings);
+    } else {
+      const data = await response.json();
+      console.log(data);
     }
-    const response = await apiCall('POST', authToken, '/listings/' + id + '/review/' + bookingId, body);
-    if (!(response.ok)) {
-      alert('Error occurred while leaving review.');
+  }
+
+  const sendReview = async () => {
+    getAllBookings();
+    const myBooking = bookings.find((booking) => booking.listingId === id && booking.owner === authEmail);
+    if (myBooking) {
+      const bookingId = myBooking.id;
+      const body = {
+        review: {
+          score: review.score,
+          name: authEmail,
+          bookingId,
+          comment: review.comment,
+        }
+      }
+      const response = await apiCall('PUT', authToken, '/listings/' + id + '/review/' + bookingId, body);
+      if (!(response.ok)) {
+        alert('Error occurred while leaving review.');
+      } else {
+        getListingInfo();
+        setReview({
+          score: 0,
+          comment: '',
+        });
+      }
+    } else {
+      alert('No booking found for this user.');
     }
   }
 
   const handleReviewInputChange = (event) => {
     const { name, value } = event.target;
-    if (name === 'score') {
-      if (/^\d$/.test(value)) {
-        setReview({ ...review, [name]: value });
-      }
-    } else {
-      setReview({ ...review, [name]: value });
-    }
+    setReview({ ...review, [name]: value });
   }
 
   const getListingInfo = async () => {
@@ -218,10 +213,10 @@ const ViewSelectedListingPage = () => {
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              {listingData.metadata && listingData.metadata.reviews && listingData.metadata.reviews.map((review, index) => (
+              {listingData.reviews && listingData.reviews.map((review, index) => (
                 <Card key={index} sx={{ marginBottom: 2 }}>
                   <CardContent>
-                    <Typography variant="h6">Score {review.score}</Typography>
+                    <Typography variant="h6">Score: {review.score}</Typography>
                     <Typography variant="body1">Name: {review.name}</Typography>
                     <Typography variant="body1">{review.comment}</Typography>
                   </CardContent>
@@ -259,14 +254,14 @@ const ViewSelectedListingPage = () => {
               <Typography variant="h6">Leave a review!</Typography>
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                name="score"
-                label="Review Score (/5)"
-                value={review.score}
-                onChange={handleReviewInputChange}
-                fullWidth
-                required
-              />
+              <Box component="fieldset" borderColor="transparent">
+                <Rating
+                  name="score"
+                  value={review.score}
+                  precision={1.0} // Allows half-star ratings
+                  onChange={handleReviewInputChange}
+                />
+              </Box>
             </Grid>
             <Grid item xs={12}>
               <TextField

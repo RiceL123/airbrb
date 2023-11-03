@@ -19,25 +19,29 @@ const ImageCarousel = ({ images }) => {
       >
         {images.map(({ title, imageUrl }, index) => (
           <Tab
-            key={title}
+            key={index}
             label={title}
             value={index}
           />
         ))}
       </Tabs>
 
-      <Card>
-        <CardMedia
-          sx={{ height: 200, width: 200 }}
-          image={images[tabValue].imageUrl}
-        />
-        <CardContent>
-          <Typography variant="body2" color="textSecondary">
-            {images[tabValue].title}
-          </Typography>
-          <Button color="error" variant="outlined">Delete</Button>
-        </CardContent>
-      </Card>
+      {images[tabValue] && (
+        <Card>
+          <CardMedia
+            sx={{ height: 200, width: 200 }}
+            src={images[tabValue].imageUrl}
+          />
+          <CardContent>
+            <Typography variant="body2" color="textSecondary">
+              {images[tabValue].title}
+            </Typography>
+            <Button color="error" variant="outlined">
+              Delete
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </>
   );
 }

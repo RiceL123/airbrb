@@ -19,7 +19,7 @@ const ListingToEdit = ({ listingInfo }) => {
   const [address, setAddress] = useState(listingInfo.address);
   const [price, setPrice] = useState(listingInfo.price);
   const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail || DEFAULT_CARD_IMG);
-  const [listingImages, setListingImages] = useState(listingInfo.metadata.images);
+  const [listingImages, setListingImages] = useState((listingInfo.metadata.images).map(obj => Object.entries(obj)[0]));
   const [availability, setAvailability] = useState(listingInfo.availability);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
