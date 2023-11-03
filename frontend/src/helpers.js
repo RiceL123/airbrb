@@ -1,6 +1,7 @@
 import config from './config.json';
 
-export const DEFAULT_IMG = 'assets/no_image.png';
+// export const DEFAULT_IMG = 'assets/no_image.png'; // for some reason not working in some files?
+export const DEFAULT_IMG = 'https://files.catbox.moe/0wvec0.png';
 
 export const apiCall = (method, token, path, body) => {
   return fetch(`http://localhost:${config.BACKEND_PORT}${path}`, {

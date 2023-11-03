@@ -10,7 +10,7 @@ const ListingCard = ({ listing }) => {
         <CardContent>
           <Grid container spacing={1}>
             <Grid item xs={12}>
-              <ShowThumbnail thumbnail={listing.thumbnail} style={{ height: '100%', maxWidth: '100%' }} />
+              <ShowThumbnail thumbnail={listing.thumbnail} style={{ height: '200px', maxWidth: '100%' }} />
             </Grid>
             <Grid item xs={12}>
               <Typography variant='h6'>{listing.title}</Typography>
