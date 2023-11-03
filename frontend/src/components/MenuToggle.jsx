@@ -36,26 +36,20 @@ const MenuToggle = () => {
       <List>
         <ListItem key='View Hosted' disablePadding>
           <ListItemButton component={Link} to="/hosted">
-              <ListItemIcon>
-                  <AddBusinessIcon/>
-              </ListItemIcon>
-              <ListItemText primary={'View Hosted'} />
+            <ListItemIcon><AddBusinessIcon /></ListItemIcon>
+            <ListItemText primary={'View Hosted'} />
           </ListItemButton>
         </ListItem>
         <ListItem key='View All Listings' disablePadding>
           <ListItemButton component={Link} to="/">
-              <ListItemIcon>
-                  <HomeIcon/>
-              </ListItemIcon>
-              <ListItemText primary={'View All Listings'} />
+            <ListItemIcon><HomeIcon /></ListItemIcon>
+            <ListItemText primary={'View All Listings'} />
           </ListItemButton>
         </ListItem>
-        <Divider/>
+        <Divider />
         <ListItem key='Bookings' disablePadding>
           <ListItemButton component={Link} to="/bookings">
-            <ListItemIcon>
-                <AddHomeIcon/>
-            </ListItemIcon>
+            <ListItemIcon><AddHomeIcon /></ListItemIcon>
             <ListItemText primary={'Bookings'} />
           </ListItemButton>
         </ListItem>
@@ -65,15 +59,15 @@ const MenuToggle = () => {
 
   return (
     <div>
-        <React.Fragment key='left'>
-          <Button variant="contained" onClick={toggleDrawer(true)} sx={{ mr: 2 }}><MenuIcon /></Button>
-          <Drawer
-            open={isOpen}
-            onClose={toggleDrawer(false)}
-          >
-            {list()}
-          </Drawer>
-        </React.Fragment>
+      <React.Fragment key='left'>
+        <Button variant="contained" onClick={toggleDrawer(true)} sx={{ mr: 2 }}><MenuIcon /></Button>
+        <Drawer
+          open={isOpen}
+          onClose={toggleDrawer(false)}
+        >
+          {list()}
+        </Drawer>
+      </React.Fragment>
     </div>
   );
 }
