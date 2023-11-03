@@ -1,0 +1,36 @@
+{
+  "title": "My Humble Abode",
+  "owner": "eric@email.com",
+  "address": {
+    "street": "200 Anzac Parade",
+    "city": "Sydney",
+    "state": "NSw"
+  },
+  "price": 200,
+  "thumbnail": {
+    "isYoutubeVideoId": true,
+    "src": "t8GNeypxNaU"
+  },
+  "metadata": {
+    "propertyType": "entirePlace",
+    "bedrooms": [
+      { "bedroomName": "Room 1", "beds": 2 },
+      { "bedroomName": "Master Bedroom", "beds": 1 }
+    ],
+    "numberBathrooms": 2,
+    "amenities": [
+      "swimming pool",
+      "WiFi"
+    ],
+    "images": [
+      {				
+        "title": "image(0).png",
+        "imageUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAxwAAAYrCAYAAACRQLu6AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAA"
+      },
+      {				
+        "title": "Swimming_pool_pic.jpg",
+        "imageUrl": "data:image/png;base64,ED8N1XjXMst/XqcKxL/RsYiWJkmYIDxiNLZpX2oPat02vmPg7+Sm/ceq0FAJ08q+szHrzVQcIKPV2cv+1CJdKWzG56P"
+      }
+    ]
+  }
+}
