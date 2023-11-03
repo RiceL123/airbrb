@@ -9,13 +9,12 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
 import { apiCall, fileToDataUrl } from '../../helpers';
-import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
 import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
-import ThumbnailUpload from './listingProperties/ThumbnailUpload';
 import AddressFields from './listingProperties/AddressFields';
 import NumberField from './listingProperties/NumberField';
 import AmenitiesFields from './listingProperties/AmenitiesFields';
 import ImageCarousel from '../listings/ImageCarousel';
+import ImageOrYTLinkUpload from './listingProperties/ImageOrYTLink';
 
 const CreateListing = ({ reloadListings }) => {
   const { authToken } = useAuth();
@@ -29,7 +28,7 @@ const CreateListing = ({ reloadListings }) => {
       state: '',
     },
     price: 0.0,
-    thumbnail: '',
+    thumbnail: { isYoutubeVideoId: false, src: '' },
     metadata: {
       ownerEmail: '',
       propertyType: '',
@@ -43,7 +42,8 @@ const CreateListing = ({ reloadListings }) => {
   });
   const [isFormVisible, setIsFormVisible] = useState(false);
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event, output) => {
+    console.log(listingData);
     const { name, value } = event.target;
     if (name === 'price') {
       // Make sure value is a number
@@ -51,10 +51,8 @@ const CreateListing = ({ reloadListings }) => {
         setListingData({ ...listingData, [name]: value });
       }
     } else if (name === 'thumbnail') {
-      // Process images correctly
-      fileToDataUrl(event.target.files[0])
-        .then((url) => setListingData({ ...listingData, [name]: url }))
-        .catch(() => alert('invalid thumbnail image'));
+      // Assumes image has been processed and value is in output
+      setListingData({ ...listingData, [name]: output });
     } else {
       setListingData({ ...listingData, [name]: value });
     }
@@ -243,7 +241,7 @@ const CreateListing = ({ reloadListings }) => {
                 <NumberField name='numberBeds' label='Number of Bedrooms' value={listingData.metadata.numberBeds} onChange={handleInputChangeMetaData} />
               </Grid>
               <Grid item xs={6}>
-                <ThumbnailUpload defaultThumbnail={DEFAULT_CARD_IMG} onChange={handleInputChange} />
+                <ImageOrYTLinkUpload thumbnail={listingData.thumbnail} onChange={handleInputChange}/>
               </Grid>
               <Grid item xs={6}>
                 <Card

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -12,19 +12,19 @@ import Stack from '@mui/material/Stack';
 import DoneIcon from '@mui/icons-material/Done';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
-import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
 import { apiCall, fileToDataUrl } from '../../helpers';
 import ImageCarousel from '../listings/ImageCarousel';
 import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
-import ThumbnailUpload from './listingProperties/ThumbnailUpload';
 import AddressFields from './listingProperties/AddressFields';
 import NumberField from './listingProperties/NumberField';
 import AmenitiesFields from './listingProperties/AmenitiesFields';
 import PublishListing from './PublishListing';
+import ImageOrYTLinkUpload from './listingProperties/ImageOrYTLink';
 
 const ListingToEdit = ({ listingInfo }) => {
   const { authToken } = useAuth();
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [editSuccess, setEditSuccess] = useState(false);
 
@@ -51,14 +51,15 @@ const ListingToEdit = ({ listingInfo }) => {
   })
 
   useEffect(() => {
-    setPayload({ title, address, price, thumbnail, metadata })
+    setPayload({ title, address, price, thumbnail, metadata });
+    console.log(payload);
   }, [title, address, price, thumbnail, metadata]);
 
   useEffect(() => {
     setMetadata({ propertyType, bedrooms, numberBathrooms, amenities, images })
   }, [propertyType, bedrooms, numberBathrooms, amenities, images])
 
-  const handleChange = (e) => {
+  const handleChange = (e, output) => {
     e.preventDefault();
     const { name, value } = e.target;
     switch (name) {
@@ -71,7 +72,8 @@ const ListingToEdit = ({ listingInfo }) => {
       case 'bedrooms': setBedrooms(value); break;
       case 'numberBathrooms': if (/^\d+$/.test(value) || value === '') setNumberBathrooms(value); break;
       case 'numberBeds': if (/^\d+$/.test(value) || value === '') setNumberBeds(value); break;
-      // case 'amenities': setAmenities(value); break;
+      case 'thumbnail': setThumbnail(output); break;
+      case 'youtubeVideoLink': setThumbnail(output); break;
     }
   }
 
@@ -80,13 +82,6 @@ const ListingToEdit = ({ listingInfo }) => {
 
     apiCall('PUT', authToken, `/listings/${id}`, payload)
       .then(() => { setEditSuccess(true); setTimeout(() => setEditSuccess(false), 2000) })
-      .catch(msg => alert(msg));
-  }
-
-  const updateThumbnail = (e) => {
-    const thumnailFile = e.target.files[0];
-    fileToDataUrl(thumnailFile)
-      .then((fileUrl) => setThumbnail(fileUrl))
       .catch(msg => alert(msg));
   }
 
@@ -172,7 +167,7 @@ const ListingToEdit = ({ listingInfo }) => {
                 <NumberField name='numberBeds' label='Number of Bedrooms' value={numberBeds} onChange={handleChange} />
               </Grid>
               <Grid item xs={12}>
-                <ThumbnailUpload defaultThumbnail={thumbnail || DEFAULT_CARD_IMG} onChange={updateThumbnail} />
+                <ImageOrYTLinkUpload thumbnail={thumbnail} onChange={handleChange} />
               </Grid>
               <Grid item xs={12}>
                 <Card
@@ -200,6 +195,7 @@ const ListingToEdit = ({ listingInfo }) => {
               </Grid>
               <Grid item xs={12} md={4}>
                 <Button variant="contained" onClick={handleSubmit} endIcon={editSuccess ? <DoneIcon /> : null}>Submit</Button>
+                <Button variant="contained" onClick={() => navigate('/hosted')}>Cancel</Button>
               </Grid>
             </Grid>
           </Box>

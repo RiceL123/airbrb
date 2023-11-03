@@ -4,6 +4,7 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
+import AddIcon from '@mui/icons-material/Add';
 
 const AmenitiesFields = ({ amenities, handleAmenityChange, addAmenity, deleteAmenity }) => {
   return (
@@ -26,7 +27,7 @@ const AmenitiesFields = ({ amenities, handleAmenityChange, addAmenity, deleteAme
           </IconButton>
         </Stack>
       ))}
-      <Button variant="outlined" onClick={addAmenity}>
+      <Button variant="outlined" onClick={addAmenity} endIcon={<AddIcon />}>
         Add Amenity
       </Button>
     </>

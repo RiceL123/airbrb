@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import Input from '@mui/material/Input';
 import Typography from '@mui/material/Typography';
 
-import { fileToDataUrl } from '../../../helpers';
+import { fileToDataUrl, DEFAULT_IMG } from '../../../helpers';
 
 const ThumbnailUpload = ({ defaultThumbnail, onChange }) => {
   const [thumbnail, setThumbnail] = useState(defaultThumbnail);
@@ -13,8 +14,8 @@ const ThumbnailUpload = ({ defaultThumbnail, onChange }) => {
     const thumbnailFile = e.target.files[0];
     fileToDataUrl(thumbnailFile)
       .then((fileUrl) => {
-        onChange(e);
-        setThumbnail(fileUrl);
+        onChange(e, { isYoutubeVideoId: false, src: fileUrl });
+        setThumbnail({ isYoutubeVideoId: false, src: fileUrl });
       })
       .catch(msg => alert(msg));
   }
@@ -24,7 +25,7 @@ const ThumbnailUpload = ({ defaultThumbnail, onChange }) => {
       <Typography variant="body1">Thumbnail</Typography>
       <CardMedia
         sx={{ height: 200, width: 200 }}
-        image={thumbnail}
+        image={thumbnail.src === '' ? DEFAULT_IMG : thumbnail.src}
       />
       <Input
         name="thumbnail"

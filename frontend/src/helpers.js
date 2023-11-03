@@ -1,5 +1,7 @@
 import config from './config.json';
 
+export const DEFAULT_IMG = 'assets/no_image.png';
+
 export const apiCall = (method, token, path, body) => {
   return fetch(`http://localhost:${config.BACKEND_PORT}${path}`, {
     method,
@@ -26,12 +28,12 @@ export const apiCall = (method, token, path, body) => {
 * @return {Promise<string>} Promise which resolves to the file as a data url.
 */
 export const fileToDataUrl = (file) => {
-  const validFileTypes = ['image/jpeg', 'image/png', 'image/jpg']
+  const validFileTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif']
   const valid = validFileTypes.find(type => type === file.type);
   const reader = new FileReader();
   const dataUrlPromise = new Promise((resolve, reject) => {
     if (!valid) {
-      reject(new Error('provided file is not a png, jpg or jpeg image.'));
+      reject(new Error(`provided file is not a png, jpg or jpeg image. was given ${file.type}`));
     }
     reader.onerror = reject;
     reader.onload = () => resolve(reader.result);

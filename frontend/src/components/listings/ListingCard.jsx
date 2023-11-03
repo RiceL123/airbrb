@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Typography, Card, CardContent, Grid, CardMedia } from '@mui/material';
-
-export const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
+import { Typography, Card, CardContent, Grid } from '@mui/material';
+import ShowThumbnail from '../listingInfo/ShowThumbnail';
 
 const ListingCard = ({ listing }) => {
   return (
@@ -11,12 +10,7 @@ const ListingCard = ({ listing }) => {
         <CardContent>
           <Grid container spacing={1}>
             <Grid item xs={12}>
-              <CardMedia
-                component='img'
-                image={listing.thumbnail === '' ? DEFAULT_CARD_IMG : listing.thumbnail}
-                style={{ maxHeight: '8em' }}
-                alt={`${listing.id} thumbnail`}
-              />
+              <ShowThumbnail thumbnail={listing.thumbnail} style={{ height: '100%', maxWidth: '100%' }} />
             </Grid>
             <Grid item xs={12}>
               <Typography variant='h6'>{listing.title}</Typography>

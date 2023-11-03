@@ -7,8 +7,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField, Rating } from '@mui/material';
-
-const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
+import ShowThumbnail from './ShowThumbnail';
 
 const ViewSelectedListingPage = () => {
   const { id } = useParams();
@@ -117,15 +116,7 @@ const ViewSelectedListingPage = () => {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Box sx={{ height: 200 }}>
-            <img
-              src={listingData.thumbnail === '' ? DEFAULT_CARD_IMG : listingData.thumbnail}
-              alt={`${listingData.id} thumbnail`}
-              style={{
-                maxWidth: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}
-            />
+            <ShowThumbnail thumbnail={listingData.thumbnail} style={{ height: '100%', maxWidth: '100%' }} />
           </Box>
         </Grid>
         <Grid item xs={8}>

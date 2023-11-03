@@ -12,7 +12,6 @@ const PropertyTypeSelect = ({ value, onChange }) => {
       onChange={onChange}
       fullWidth
       required
-      sx={{ mb: 2 }}
     >
       <MenuItem value="entirePlace">Entire Place</MenuItem>
       <MenuItem value="privateRoom">Private Room</MenuItem>
