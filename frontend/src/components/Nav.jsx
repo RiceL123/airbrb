@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  Link
-} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
 import Logout from './auth/Logout';
 import MenuToggle from './MenuToggle';
@@ -20,7 +18,7 @@ const Nav = () => {
         <Toolbar>
           <MenuToggle />
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>💀 airbrb</Link>
+            <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>Airbrb</Link>
           </Typography>
 
           {!authEmail && !authToken
