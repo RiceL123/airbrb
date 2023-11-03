@@ -84,7 +84,7 @@ const ViewSelectedListingPage = () => {
 
   const sendReview = async () => {
     getAllBookings();
-    const myBooking = bookings.find((booking) => booking.listingId === id && booking.owner === authEmail);
+    const myBooking = bookings.find((booking) => booking.listingId === id && booking.owner === authEmail && booking.status === 'accepted');
     if (myBooking) {
       const bookingId = myBooking.id;
       const body = {
@@ -213,15 +213,18 @@ const ViewSelectedListingPage = () => {
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              {listingData.reviews && listingData.reviews.map((review, index) => (
-                <Card key={index} sx={{ marginBottom: 2 }}>
-                  <CardContent>
-                    <Typography variant="h6">Score: {review.score}</Typography>
-                    <Typography variant="body1">Name: {review.name}</Typography>
-                    <Typography variant="body1">{review.comment}</Typography>
-                  </CardContent>
-                </Card>
-              ))}
+              {listingData.reviews &&
+                listingData.reviews
+                  .filter((review) => review.status === 'accepted')
+                  .map((review, index) => (
+                    <Card key={index} sx={{ marginBottom: 2 }}>
+                      <CardContent>
+                        <Typography variant="h6">Score: {review.score}</Typography>
+                        <Typography variant="body1">Name: {review.name}</Typography>
+                        <Typography variant="body1">{review.comment}</Typography>
+                      </CardContent>
+                    </Card>
+                  ))}
             </Grid>
           </Grid>
         </Grid>
