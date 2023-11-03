@@ -5,6 +5,18 @@ import { Typography, Card, CardContent, Grid, CardMedia } from '@mui/material';
 export const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
 
 const ListingCard = ({ listing }) => {
+  const calculateAverageScore = () => {
+    let totalScore = 0;
+    if (listing.reviews && listing.reviews.length > 0) {
+      listing.reviews.forEach((review) => {
+        totalScore += parseInt(review.score);
+      });
+    }
+
+    const averageScore = totalScore / listing.reviews.length;
+    return averageScore;
+  }
+
   return (
     <Link to={`/selectedListing/${listing.id}`} key={listing.id}>
       <Card>
@@ -31,6 +43,9 @@ const ListingCard = ({ listing }) => {
             <Grid item xs={6}>
               <Typography variant='caption'>Owner:</Typography>
               <Typography variant='body2'>{listing.owner}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant='body1'>{'Reviews: ' + listing.reviews.length + ' (Avg: ' + calculateAverageScore() + '/5 ⭐)'}</Typography>
             </Grid>
           </Grid>
         </CardContent>
