@@ -23,6 +23,7 @@ const ViewSelectedListingPage = () => {
     comment: '',
   })
   const [bookings, setBookings] = useState([]);
+  const [myBookings, setMyBookings] = useState([]);
 
   const sendBookingRequest = async (body) => {
     const response = await apiCall('POST', authToken, '/bookings/new/' + id, body);
@@ -78,6 +79,11 @@ const ViewSelectedListingPage = () => {
     if (response.ok) {
       const data = await response.json();
       setBookings(data.bookings);
+
+      // MyBookings are bookings by the user for this property...
+      const myBookings = bookings.filter((booking) => booking.listingId === id && booking.owner === authEmail);
+      setMyBookings(myBookings);
+      console.log(myBookings);
     } else {
       const data = await response.json();
       console.log(data);
@@ -130,6 +136,9 @@ const ViewSelectedListingPage = () => {
 
   useEffect(() => {
     getListingInfo();
+    if (authEmail !== null && authToken !== null) {
+      getAllBookings();
+    }
   }, [id, authToken]);
 
   return (
@@ -234,7 +243,21 @@ const ViewSelectedListingPage = () => {
         <Grid item xs={4}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Typography variant="h6">Making a booking</Typography>
+              <Typography variant="h6">Current Bookings</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              {myBookings.map((booking) => (
+                <Card key={booking.id} sx={{ marginBottom: 2 }}>
+                  <CardContent>
+                    <Typography variant="body1">Start Date: {booking.dateRange.startDate}</Typography>
+                    <Typography variant="body1">End Date: {booking.dateRange.endDate}</Typography>
+                    <Typography variant="body1">Status: {booking.status}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6">Make a booking</Typography>
             </Grid>
             <Grid item xs={12}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>

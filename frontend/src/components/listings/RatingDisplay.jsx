@@ -8,6 +8,8 @@ const RatingDisplay = ({ listing }) => {
       listing.reviews.forEach((review) => {
         totalScore += parseInt(review.score);
       });
+    } else {
+      return 0;
     }
 
     const averageScore = totalScore / listing.reviews.length;
@@ -15,7 +17,7 @@ const RatingDisplay = ({ listing }) => {
   }
 
   return (
-    <Typography variant='body1'>{'Reviews: ' + listing.reviews.length + ' (Avg: ' + calculateAverageScore() + '/5 ⭐)'}</Typography>
+    <Typography variant='body1'>{'Reviews: ' + (listing.reviews && listing.reviews.length) + ' (Avg: ' + calculateAverageScore() + '/5 ⭐)'}</Typography>
   );
 };
 
