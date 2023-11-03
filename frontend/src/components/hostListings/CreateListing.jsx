@@ -25,6 +25,7 @@ const CreateListing = () => {
       amenities: [],
       images: [],
       isLive: false,
+      bookings: [],
     },
   });
   const [isFormVisible, setIsFormVisible] = useState(false);

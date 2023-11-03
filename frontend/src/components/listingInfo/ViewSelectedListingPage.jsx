@@ -21,12 +21,35 @@ const ViewSelectedListingPage = () => {
     comment: '',
   })
 
+  const publishListingRequest = async (bId) => {
+    const newBooking = {
+      bookingId: bId,
+      bookingUserEmail: authEmail,
+      bookingStatus: 'pending',
+    };
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        bookings: [...listingData.metadata.bookings, newBooking],
+      },
+    });
+
+    const response = await apiCall('PUT', authToken, '/listings/' + id, listingData);
+    if (response.ok) {
+      console.log('Booking successfully put into database.');
+    }
+  }
+
   const sendBookingRequest = async (body) => {
     const response = await apiCall('POST', authToken, '/bookings/new/' + id, body);
     if (response.ok) {
       const data = await response.json();
       console.log(data);
       alert('Booking has been sent!');
+
+      // Update listing
+      publishListingRequest(data.bookingId);
     } else {
       const data = await response.json();
       console.log(data);
