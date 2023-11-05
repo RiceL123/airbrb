@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { apiCall, formatDate } from '../../helpers';
 
-import { Alert, Typography, Grid, Card, CardContent, Box } from '@mui/material';
+import { Typography, Grid, Card, CardContent, Box, Button } from '@mui/material';
 
 const ViewBookingsPage = () => {
   const { authEmail, authToken } = useAuth();
@@ -36,6 +36,10 @@ const ViewBookingsPage = () => {
     }
   }
 
+  const changeBookingStatus = (status) => {
+    console.log(status);
+  }
+
   useEffect(() => {
     getListings();
     getAllBookings();
@@ -63,13 +67,16 @@ const ViewBookingsPage = () => {
                 <div>
                   <Typography variant="body1">Listing: {listing.title}</Typography>
                 </div>
+                <div>
+                  <Typography variant="caption">{myBookings.some((booking) => parseInt(booking.listingId) === listing.id) ? null : 'This listing has no bookings.'}</Typography>
+                </div>
               {myBookings
                 .filter((booking) => parseInt(booking.listingId) === listing.id)
                 .map((booking) => (
                   <Card key={booking.id} sx={{ marginBottom: 2 }}>
                     <CardContent>
                       <Grid container spacing={2}>
-                        <Grid item xs={8}>
+                        <Grid item xs={10}>
                           <div>
                             <Typography variant="caption">Booking ID: {booking.id}</Typography>
                           </div>
@@ -79,10 +86,13 @@ const ViewBookingsPage = () => {
                           <div>
                             <Typography variant="caption">Booking Dates: {formatDate(booking.dateRange.startDate)} - {formatDate(booking.dateRange.endDate)}</Typography>
                           </div>
-                          <Alert severity="info">Status: {booking.status}</Alert>
+                          <div>
+                            <Typography variant="caption">Booking Status: {booking.status} - {formatDate(booking.dateRange.endDate)}</Typography>
+                          </div>
                         </Grid>
-                        <Grid item xs={4}>
-
+                        <Grid item xs={2}>
+                          <Button variant="outlined" onClick={() => changeBookingStatus('accept')}>Accept</Button>
+                          <Button variant="outlined" onClick={() => changeBookingStatus('deny')}>Deny</Button>
                         </Grid>
                       </Grid>
                     </CardContent>
