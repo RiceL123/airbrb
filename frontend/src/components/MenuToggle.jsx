@@ -52,7 +52,7 @@ const MenuToggle = () => {
         </ListItem>
         <Divider/>
         <ListItem key='Bookings' disablePadding>
-          <ListItemButton component={Link} to="/bookings">
+          <ListItemButton component={Link} to="/viewBookings">
             <ListItemIcon>
                 <AddHomeIcon/>
             </ListItemIcon>
