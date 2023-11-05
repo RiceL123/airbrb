@@ -98,7 +98,7 @@ const CreateListing = () => {
       ...listingData,
       metadata: {
         ...listingData.metadata,
-        bedrooms: [...listingData.metadata.amenities, newBedroom],
+        bedrooms: [...listingData.metadata.bedrooms, newBedroom],
       },
     });
   };
