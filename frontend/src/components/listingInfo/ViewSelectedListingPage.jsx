@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { apiCall } from '../../helpers';
+import { apiCall, formatDate } from '../../helpers';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField, Rating } from '@mui/material';
+import { Alert, Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField, Rating } from '@mui/material';
 
 import RatingDisplay from '../listings/RatingDisplay';
 
@@ -83,7 +83,6 @@ const ViewSelectedListingPage = () => {
       // MyBookings are bookings by the user for this property...
       const myBookings = bookings.filter((booking) => booking.listingId === id && booking.owner === authEmail);
       setMyBookings(myBookings);
-      console.log(myBookings);
     } else {
       const data = await response.json();
       console.log(data);
@@ -128,7 +127,6 @@ const ViewSelectedListingPage = () => {
     if (response.ok) {
       const data = await response.json();
       setListingData(data.listing);
-      console.log(data.listing, authEmail);
     } else {
       console.error('Getting specific listing data failed.');
     }
@@ -249,9 +247,13 @@ const ViewSelectedListingPage = () => {
               {myBookings.map((booking) => (
                 <Card key={booking.id} sx={{ marginBottom: 2 }}>
                   <CardContent>
-                    <Typography variant="body1">Start Date: {booking.dateRange.startDate}</Typography>
-                    <Typography variant="body1">End Date: {booking.dateRange.endDate}</Typography>
-                    <Typography variant="body1">Status: {booking.status}</Typography>
+                    <div>
+                      <Typography variant="caption">Start Date: {formatDate(booking.dateRange.startDate)}</Typography>
+                    </div>
+                    <div>
+                      <Typography variant="caption">End Date: {formatDate(booking.dateRange.endDate)}</Typography>
+                    </div>
+                    <Alert severity="info">Status: {booking.status}</Alert>
                   </CardContent>
                 </Card>
               ))}

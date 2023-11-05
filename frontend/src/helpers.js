@@ -41,3 +41,8 @@ export const fileToDataUrl = (file) => {
   reader.readAsDataURL(file);
   return dataUrlPromise;
 }
+
+export const formatDate = (dateObj) => {
+  const date = new Date(dateObj);
+  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
+}
