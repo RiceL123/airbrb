@@ -13,6 +13,7 @@ import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
 import AddressFields from './listingProperties/AddressFields';
 import NumberField from './listingProperties/NumberField';
 import AmenitiesFields from './listingProperties/AmenitiesFields';
+import BedroomFields from './listingProperties/BedroomFields';
 import ImageCarousel from '../listings/ImageCarousel';
 import ImageOrYTLinkUpload from './listingProperties/ImageOrYTLink';
 
@@ -122,7 +123,6 @@ const CreateListing = ({ reloadListings }) => {
     setIsFormVisible(!isFormVisible);
   };
 
-<<<<<<< b775d9c94d93f02bcd0a3f62ccac6fc08a48f0dc
   const addBedroom = () => {
     const newBedroom = { name: '', beds: 0 };
     setListingData({
@@ -147,8 +147,18 @@ const CreateListing = ({ reloadListings }) => {
     });
   };
 
-=======
->>>>>>> d99932a245c01ff9495ce5a7f316c0a6a757b353
+  const deleteBedroom = (index) => {
+    const updatedBedrooms = [...listingData.metadata.bedrooms];
+    updatedBedrooms.splice(index, 1);
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        bedrooms: updatedBedrooms,
+      },
+    });
+  }
+
   const addAmenity = () => {
     const newAmenity = '';
     setListingData({
@@ -269,7 +279,7 @@ const CreateListing = ({ reloadListings }) => {
                 <NumberField name='numberBeds' label='Number of Bedrooms' value={listingData.metadata.numberBeds} onChange={handleInputChangeMetaData} />
               </Grid>
               <Grid item xs={6}>
-                <ImageOrYTLinkUpload thumbnail={listingData.thumbnail} onChange={handleInputChange}/>
+                <ImageOrYTLinkUpload thumbnail={listingData.thumbnail} onChange={handleInputChange} />
               </Grid>
               <Grid item xs={6}>
                 <Card
@@ -289,12 +299,20 @@ const CreateListing = ({ reloadListings }) => {
                   />
                 </Card>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <AmenitiesFields
                   amenities={listingData.metadata.amenities}
                   handleAmenityChange={handleAmenityChange}
                   addAmenity={addAmenity}
                   deleteAmenity={deleteAmenity}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <BedroomFields
+                  bedrooms={listingData.metadata.bedrooms}
+                  handleBedroomChange={handleBedroomChange}
+                  addBedroom={addBedroom}
+                  deleteBedroom={deleteBedroom}
                 />
               </Grid>
             </Grid>

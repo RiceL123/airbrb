@@ -1,10 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Typography, Card, CardContent, Grid, CardMedia } from '@mui/material';
 import RatingDisplay from './RatingDisplay';
-import ShowThumbnail from '../listingInfo/ShowThumbnail';
-
-export const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
 
 import { Typography, Card, CardContent, Grid } from '@mui/material';
 import ShowThumbnail from '../listingInfo/ShowThumbnail';

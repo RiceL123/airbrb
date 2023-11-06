@@ -11,8 +11,6 @@ import { Alert, Typography, Button, Grid, Box, Card, CardContent, List, ListItem
 import RatingDisplay from '../listings/RatingDisplay';
 import ShowThumbnail from './ShowThumbnail';
 
-const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
-
 const ViewSelectedListingPage = () => {
   const { id } = useParams();
   const { authEmail, authToken } = useAuth();
@@ -277,7 +275,6 @@ const ViewSelectedListingPage = () => {
               <Typography variant="h6">Leave a review!</Typography>
             </Grid>
             <Grid item xs={12}>
-<<<<<<< frontend/src/components/listingInfo/ViewSelectedListingPage.jsx
               <Box component="fieldset" borderColor="transparent">
                 <Rating
                   name="score"
@@ -286,23 +283,6 @@ const ViewSelectedListingPage = () => {
                   onChange={handleReviewInputChange}
                 />
               </Box>
-=======
-              <TextField
-                name="score"
-                label="Review Score (/5)"
-                value={review.score}
-                onChange={handleReviewInputChange}
-                fullWidth
-                required
-              />
-              <Rating
-                name="simple-controlled"
-                value={review.score}
-                onChange={(e, newValue) => {
-                  setReview({ ...review, score: newValue });
-                }}
-              />
->>>>>>> frontend/src/components/listingInfo/ViewSelectedListingPage.jsx
             </Grid>
             <Grid item xs={12}>
               <TextField

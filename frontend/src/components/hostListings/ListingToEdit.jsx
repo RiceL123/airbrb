@@ -18,6 +18,7 @@ import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
 import AddressFields from './listingProperties/AddressFields';
 import NumberField from './listingProperties/NumberField';
 import AmenitiesFields from './listingProperties/AmenitiesFields';
+import BedroomFields from './listingProperties/BedroomFields';
 import PublishListing from './PublishListing';
 import ImageOrYTLinkUpload from './listingProperties/ImageOrYTLink';
 
@@ -31,8 +32,7 @@ const ListingToEdit = ({ listingInfo }) => {
   const [title, setTitle] = useState(listingInfo.title);
   const [address, setAddress] = useState(listingInfo.address);
   const [price, setPrice] = useState(listingInfo.price);
-  const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail || DEFAULT_CARD_IMG);
-  const [listingImages, setListingImages] = useState((listingInfo.metadata.images).map(obj => Object.entries(obj)[0]));
+  const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail);
   const [availability, setAvailability] = useState(listingInfo.availability);
 
   const [metadata, setMetadata] = useState(listingInfo.metadata);
@@ -124,6 +124,23 @@ const ListingToEdit = ({ listingInfo }) => {
     setAmenities(updatedAmenities);
   };
 
+  const addBedroom = () => {
+    setBedrooms([...bedrooms, { name: '', beds: 0 }]);
+  }
+
+  const deleteBedroom = (index) => {
+    const updatedBedrooms = [...bedrooms];
+    updatedBedrooms.splice(index, 1);
+    setBedrooms(updatedBedrooms);
+  }
+
+  const handleBedroomChange = (event, index) => {
+    const { name, value } = event.target;
+    const updatedAmenities = [...bedrooms];
+    updatedAmenities[index][name] = value;
+    setBedrooms(updatedAmenities);
+  };
+
   return (
     <>
       <Grid container spacing={2}>
@@ -186,12 +203,20 @@ const ListingToEdit = ({ listingInfo }) => {
                   />
                 </Card>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <AmenitiesFields
                   amenities={amenities}
                   handleAmenityChange={handleAmenityChange}
                   addAmenity={addAmenity}
                   deleteAmenity={deleteAmenity}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <BedroomFields
+                  bedrooms={bedrooms}
+                  handleBedroomChange={handleBedroomChange}
+                  addBedroom={addBedroom}
+                  deleteBedroom={deleteBedroom}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
