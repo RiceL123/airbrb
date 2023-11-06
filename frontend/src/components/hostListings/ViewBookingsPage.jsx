@@ -30,7 +30,24 @@ const ViewBookingsPage = () => {
       // Make sure listing is published
       const filteredListings = data.listings;
       filteredListings.sort((a, b) => a.title.localeCompare(b.title));
-      setListings(filteredListings);
+
+      // Iterate through the filteredListings and get detailed data for each listing
+      filteredListings.forEach(async (listing) => {
+        const listingId = listing.id;
+        const response = await apiCall('GET', authToken, '/listings/' + listingId, undefined);
+        if (response.ok) {
+          const data = await response.json();
+          const newListingObj = data.listing;
+          newListingObj.id = listingId;
+          setListings((prevExtendedListings) => [
+            ...prevExtendedListings,
+            data.listing,
+          ]);
+          console.log(listings);
+        } else {
+          console.error('Getting specific listing data failed.');
+        }
+      });
     } else {
       console.error('Getting all listings failed.');
     }
@@ -43,6 +60,7 @@ const ViewBookingsPage = () => {
   useEffect(() => {
     getListings();
     getAllBookings();
+    setListings([]);
   }, []);
 
   return (
@@ -70,34 +88,47 @@ const ViewBookingsPage = () => {
                 <div>
                   <Typography variant="caption">{myBookings.some((booking) => parseInt(booking.listingId) === listing.id) ? null : 'This listing has no bookings.'}</Typography>
                 </div>
-              {myBookings
-                .filter((booking) => parseInt(booking.listingId) === listing.id)
-                .map((booking) => (
-                  <Card key={booking.id} sx={{ marginBottom: 2 }}>
-                    <CardContent>
-                      <Grid container spacing={2}>
-                        <Grid item xs={10}>
-                          <div>
-                            <Typography variant="caption">Booking ID: {booking.id}</Typography>
-                          </div>
-                          <div>
-                            <Typography variant="caption">Booking Owner: {booking.owner}</Typography>
-                          </div>
-                          <div>
-                            <Typography variant="caption">Booking Dates: {formatDate(booking.dateRange.startDate)} - {formatDate(booking.dateRange.endDate)}</Typography>
-                          </div>
-                          <div>
-                            <Typography variant="caption">Booking Status: {booking.status} - {formatDate(booking.dateRange.endDate)}</Typography>
-                          </div>
-                        </Grid>
-                        <Grid item xs={2}>
-                          <Button variant="outlined" onClick={() => changeBookingStatus('accept')}>Accept</Button>
-                          <Button variant="outlined" onClick={() => changeBookingStatus('deny')}>Deny</Button>
-                        </Grid>
+                <div>
+                  {listing.availability.map((a) => (
+                    <Typography key={a.startDate} variant="caption">
+                      Available: {formatDate(a.startDate)} - {formatDate(a.endDate)}
+                    </Typography>
+                  ))}
+                </div>
+                <Box sx={{ borderRadius: 2, p: 1, m: 1 }}>
+                  <Grid container spacing={2}>
+                    {myBookings
+                      .filter((booking) => parseInt(booking.listingId) === listing.id)
+                      .map((booking) => (
+                      <Grid item xs={6} key={booking.id}>
+                        <Card>
+                          <CardContent>
+                            <Grid container spacing={2}>
+                              <Grid item xs={10}>
+                                <div>
+                                  <Typography variant="caption">ID: {booking.id}</Typography>
+                                </div>
+                                <div>
+                                  <Typography variant="caption">Owner: {booking.owner}</Typography>
+                                </div>
+                                <div>
+                                  <Typography variant="caption">Dates: {formatDate(booking.dateRange.startDate)} - {formatDate(booking.dateRange.endDate)}</Typography>
+                                </div>
+                                <div>
+                                  <Typography variant="caption">Status: {booking.status} - {formatDate(booking.dateRange.endDate)}</Typography>
+                                </div>
+                              </Grid>
+                              <Grid item xs={2}>
+                                <Button variant="outlined" onClick={() => changeBookingStatus('accept')}>✔️</Button>
+                                <Button variant="outlined" onClick={() => changeBookingStatus('deny')}>❌</Button>
+                              </Grid>
+                            </Grid>
+                          </CardContent>
+                        </Card>
                       </Grid>
-                    </CardContent>
-                  </Card>
-                ))}
+                      ))}
+                  </Grid>
+                </Box>
               </CardContent>
             </Card>
           ))}
