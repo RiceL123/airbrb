@@ -216,7 +216,7 @@ export const getAllListings = () =>
         thumbnail: listings[key].thumbnail,
         price: listings[key].price,
         reviews: listings[key].reviews,
-        published: listings[key].published
+        published: listings[key].published,
       })),
     );
   });

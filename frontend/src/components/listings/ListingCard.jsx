@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import RatingDisplay from './RatingDisplay';
+
 import { Typography, Card, CardContent, Grid } from '@mui/material';
 import ShowThumbnail from '../listingInfo/ShowThumbnail';
 
@@ -25,6 +27,9 @@ const ListingCard = ({ listing }) => {
             <Grid item xs={6}>
               <Typography variant='caption'>Owner:</Typography>
               <Typography variant='body2'>{listing.owner}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <RatingDisplay listing={listing}></RatingDisplay>
             </Grid>
           </Grid>
         </CardContent>

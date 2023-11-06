@@ -3,8 +3,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [authToken, setToken] = useState(localStorage.getItem('authToken') || null);
-  const [authEmail, setEmail] = useState(localStorage.getItem('authEmail') || null);
+  // const [authToken, setToken] = useState(localStorage.getItem('authToken') || null);
+  // const [authEmail, setEmail] = useState(localStorage.getItem('authEmail') || null);
+  const [authToken, setToken] = useState(null);
+  const [authEmail, setEmail] = useState(null);
 
   const login = (authEmail, authToken) => {
     setEmail(authEmail);

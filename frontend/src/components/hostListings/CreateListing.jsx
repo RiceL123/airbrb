@@ -13,6 +13,7 @@ import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
 import AddressFields from './listingProperties/AddressFields';
 import NumberField from './listingProperties/NumberField';
 import AmenitiesFields from './listingProperties/AmenitiesFields';
+import BedroomFields from './listingProperties/BedroomFields';
 import ImageCarousel from '../listings/ImageCarousel';
 import ImageOrYTLinkUpload from './listingProperties/ImageOrYTLink';
 
@@ -38,6 +39,7 @@ const CreateListing = ({ reloadListings }) => {
       amenities: [],
       images: [],
       isLive: false,
+      bookings: [],
     },
   });
   const [isFormVisible, setIsFormVisible] = useState(false);
@@ -120,6 +122,42 @@ const CreateListing = ({ reloadListings }) => {
   const toggleFormVisibility = () => {
     setIsFormVisible(!isFormVisible);
   };
+
+  const addBedroom = () => {
+    const newBedroom = { name: '', beds: 0 };
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        bedrooms: [...listingData.metadata.bedrooms, newBedroom],
+      },
+    });
+  };
+
+  const handleBedroomChange = (event, index) => {
+    const { name, value } = event.target;
+    const updatedBedrooms = [...listingData.metadata.bedrooms];
+    updatedBedrooms[index][name] = value;
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        bedrooms: updatedBedrooms,
+      },
+    });
+  };
+
+  const deleteBedroom = (index) => {
+    const updatedBedrooms = [...listingData.metadata.bedrooms];
+    updatedBedrooms.splice(index, 1);
+    setListingData({
+      ...listingData,
+      metadata: {
+        ...listingData.metadata,
+        bedrooms: updatedBedrooms,
+      },
+    });
+  }
 
   const addAmenity = () => {
     const newAmenity = '';
@@ -241,7 +279,7 @@ const CreateListing = ({ reloadListings }) => {
                 <NumberField name='numberBeds' label='Number of Bedrooms' value={listingData.metadata.numberBeds} onChange={handleInputChangeMetaData} />
               </Grid>
               <Grid item xs={6}>
-                <ImageOrYTLinkUpload thumbnail={listingData.thumbnail} onChange={handleInputChange}/>
+                <ImageOrYTLinkUpload thumbnail={listingData.thumbnail} onChange={handleInputChange} />
               </Grid>
               <Grid item xs={6}>
                 <Card
@@ -261,12 +299,20 @@ const CreateListing = ({ reloadListings }) => {
                   />
                 </Card>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <AmenitiesFields
                   amenities={listingData.metadata.amenities}
                   handleAmenityChange={handleAmenityChange}
                   addAmenity={addAmenity}
                   deleteAmenity={deleteAmenity}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <BedroomFields
+                  bedrooms={listingData.metadata.bedrooms}
+                  handleBedroomChange={handleBedroomChange}
+                  addBedroom={addBedroom}
+                  deleteBedroom={deleteBedroom}
                 />
               </Grid>
             </Grid>

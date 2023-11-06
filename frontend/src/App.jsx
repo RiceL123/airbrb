@@ -16,6 +16,7 @@ import ListingsLandingPage from './components/listings/ListingsLandingPage';
 import EditBookingsPage from './components/hostListings/EditBookingsPage';
 import ViewSelectedListingPage from './components/listingInfo/ViewSelectedListingPage';
 import EditListingPage from './components/hostListings/EditListingPage';
+import ViewBookingsPage from './components/hostListings/ViewBookingsPage';
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
             <Route path='/hosted/:id/edit' element={<EditListingPage />} />
             <Route path='/editHosted' element={<EditBookingsPage />} />
             <Route path='/selectedListing/:id' element={<ViewSelectedListingPage />} />
+            <Route path='/viewBookings' element={<ViewBookingsPage />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

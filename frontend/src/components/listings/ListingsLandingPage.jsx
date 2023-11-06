@@ -12,20 +12,73 @@ import SearchContainer from './SearchContainer';
 const ListingsLandingPage = () => {
   const { authEmail, authToken } = useAuth();
   const [listings, setListings] = useState([]);
+  const [myBookings, setMyBookings] = useState([]);
   // const [filteredListings, setFilteredListings] = useState(listings);
 
-  useEffect(() => {
-    const getListings = async () => {
-      const response = await apiCall('GET', authToken, '/listings', undefined);
-      if (response.ok) {
-        const data = await response.json();
-        setListings(data.listings);
-        // console.log(data);
-      } else {
-        console.error('Getting all listings failed.');
-      }
+  const getAllBookings = async () => {
+    const response = await apiCall('GET', authToken, '/bookings', undefined);
+    if (response.ok) {
+      const data = await response.json();
+      const bookings = data.bookings.filter((booking) => booking.owner === authEmail);
+      setMyBookings(bookings);
+      console.log(myBookings);
+      console.log(bookings);
+    } else {
+      const data = await response.json();
+      console.log(data);
     }
+  }
 
+  const getListings = async () => {
+    const response = await apiCall('GET', authToken, '/listings', undefined);
+    if (response.ok) {
+      const data = await response.json();
+
+      // Filter listings where published is true
+      const filteredListings = data.listings.filter(listing => listing.published === true);
+
+      // Sort the filtered listings alphabetically by title
+      filteredListings.sort((a, b) => a.title.localeCompare(b.title));
+
+      // Now we need to put those with bookings first
+      const matchedBookings = myBookings.filter(booking => {
+        return (booking.status === 'accepted' || booking.status === 'pending') && filteredListings.some(listing => listing.id === parseInt(booking.listingId));
+      });
+      matchedBookings.sort((a, b) => a.listingId - b.listingId);
+
+      const bookingIndexMap = {};
+      matchedBookings.forEach((booking, index) => {
+        bookingIndexMap[booking.listingId] = index;
+      });
+
+      // Sort listings by booking index or alphabetically if no booking is found
+      filteredListings.sort((a, b) => {
+        const indexA = bookingIndexMap[a.id];
+        const indexB = bookingIndexMap[b.id];
+
+        if (indexA !== undefined && indexB !== undefined) {
+          return indexA - indexB;
+        } else if (indexA !== undefined) {
+          // A < B
+          return -1;
+        } else if (indexB !== undefined) {
+          // A > B
+          return 1;
+        } else {
+          // Alphabetically
+          return a.title.localeCompare(b.title);
+        }
+      });
+
+      setListings(filteredListings);
+      console.log(data);
+    } else {
+      console.error('Getting all listings failed.');
+    }
+  }
+
+  useEffect(() => {
+    getAllBookings();
     getListings();
   }, []);
 
