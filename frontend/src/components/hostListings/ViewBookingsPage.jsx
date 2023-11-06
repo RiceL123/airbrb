@@ -10,13 +10,15 @@ const ViewBookingsPage = () => {
   const [listings, setListings] = useState([]);
 
   const getAllBookings = async () => {
+    if (!authEmail && !authToken) {
+      return;
+    }
+
     const response = await apiCall('GET', authToken, '/bookings', undefined);
     if (response.ok) {
       const data = await response.json();
       const myBookings = data.bookings;
       setMyBookings(myBookings);
-
-      console.log(myBookings, authEmail);
     } else {
       const data = await response.json();
       console.log(data);
@@ -27,8 +29,11 @@ const ViewBookingsPage = () => {
     const response = await apiCall('GET', authToken, '/listings', undefined);
     if (response.ok) {
       const data = await response.json();
-      // Make sure listing is published
-      const filteredListings = data.listings;
+
+      // Make sure we own these bookings
+      const filteredListings = data.listings.filter((listing) => {
+        return (listing.owner === authEmail);
+      });
       filteredListings.sort((a, b) => a.title.localeCompare(b.title));
 
       // Iterate through the filteredListings and get detailed data for each listing
@@ -53,13 +58,82 @@ const ViewBookingsPage = () => {
     }
   }
 
-  const changeBookingStatus = (status) => {
-    console.log(status);
+  const calculateDaysSincePosting = (postedOn) => {
+    const now = new Date();
+    const postingDate = new Date(postedOn);
+    const timeDiff = now - postingDate;
+    // milliseconds to days
+    const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+    return daysDiff;
+  }
+
+  const calculateBookedDays = (id) => {
+    const thisListingBookings = myBookings.filter((booking) => parseInt(booking.listingId) === id);
+    let sum = 0;
+    thisListingBookings.forEach((booking) => {
+      if (booking.status === 'accepted') {
+        const startDate = new Date(booking.dateRange.startDate);
+        const endDate = new Date(booking.dateRange.endDate);
+        const timeDiff = endDate - startDate;
+        // milliseconds to days
+        const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        sum += daysDiff;
+      }
+    });
+
+    return sum;
+  }
+
+  const calculateListingRevenue = (id) => {
+    const thisListingBookings = myBookings.filter((booking) => parseInt(booking.listingId) === id);
+    let sum = 0;
+    thisListingBookings.forEach((booking) => {
+      if (booking.status === 'accepted') {
+        sum += booking.totalPrice;
+      }
+    });
+    return sum;
+  }
+
+  const resetPage = () => {
+    setMyBookings([]);
+    setListings([]);
+    const fetchData = async () => {
+      await getListings();
+      getAllBookings();
+    };
+    fetchData();
+  }
+
+  const changeBookingStatus = async (status, bookingId) => {
+    if (status === 'accept') {
+      const response = await apiCall('PUT', authToken, '/bookings/accept/' + bookingId, undefined);
+      if (!(response.ok)) {
+        const data = await response.json();
+        alert(data.error);
+      } else {
+        resetPage();
+        console.log('Accepted!');
+      }
+    } else {
+      const response = await apiCall('PUT', authToken, '/bookings/decline/' + bookingId, undefined);
+      if (!(response.ok)) {
+        const data = await response.json();
+        alert(data.error);
+      } else {
+        resetPage();
+        console.log('Declined!');
+      }
+    }
   }
 
   useEffect(() => {
-    getListings();
-    getAllBookings();
+    const fetchData = async () => {
+      await getListings();
+      getAllBookings();
+    };
+    fetchData();
     setListings([]);
   }, []);
 
@@ -71,15 +145,15 @@ const ViewBookingsPage = () => {
         </Grid>
         <Grid item xs={12}>
           <div>
-            <Typography variant="caption">{myBookings ? null : 'You have no listings with any bookings.'}</Typography>
+            <Typography variant="caption">{listings.length === 0 ? 'You have no listings with any bookings.' : null}</Typography>
           </div>
           <div>
-            <Typography variant="caption">{authToken === undefined ? 'You aren\'t logged in.' : null}</Typography>
+            <Typography variant="caption">{!authToken ? 'You aren\'t logged in.' : null}</Typography>
           </div>
         </Grid>
 
         <Grid item xs={12}>
-          {listings.map((listing) => (
+          {authToken && listings.map((listing) => (
             <Card key={listing.id} sx={{ marginBottom: 2 }}>
               <CardContent>
                 <div>
@@ -94,6 +168,15 @@ const ViewBookingsPage = () => {
                       Available: {formatDate(a.startDate)} - {formatDate(a.endDate)}
                     </Typography>
                   ))}
+                </div>
+                <div>
+                  <Typography variant="caption">⚡ Listing has been online for {calculateDaysSincePosting(listing.postedOn)} days</Typography>
+                </div>
+                <div>
+                  <Typography variant="caption">✍️ Listing has been booked this year for {calculateBookedDays(listing.id)} days</Typography>
+                </div>
+                <div>
+                  <Typography variant="caption">🤑 Listing has revenue of ${calculateListingRevenue(listing.id)}</Typography>
                 </div>
                 <Box sx={{ borderRadius: 2, p: 1, m: 1 }}>
                   <Grid container spacing={2}>
@@ -115,12 +198,20 @@ const ViewBookingsPage = () => {
                                   <Typography variant="caption">Dates: {formatDate(booking.dateRange.startDate)} - {formatDate(booking.dateRange.endDate)}</Typography>
                                 </div>
                                 <div>
-                                  <Typography variant="caption">Status: {booking.status} - {formatDate(booking.dateRange.endDate)}</Typography>
+                                  <Typography
+                                    variant="caption"
+                                    style={{
+                                      fontWeight: booking.status === 'accepted' || booking.status === 'declined' ? 'bold' : 'normal',
+                                      fontStyle: booking.status === 'pending' ? 'italic' : 'normal',
+                                    }}
+                                  >
+                                    Status: {booking.status}
+                                  </Typography>
                                 </div>
                               </Grid>
                               <Grid item xs={2}>
-                                <Button variant="outlined" onClick={() => changeBookingStatus('accept')}>✔️</Button>
-                                <Button variant="outlined" onClick={() => changeBookingStatus('deny')}>❌</Button>
+                                <Button variant="outlined" disabled={booking.status !== 'pending'} onClick={() => changeBookingStatus('accept', booking.id)}>✔️</Button>
+                                <Button variant="outlined" disabled={booking.status !== 'pending'} onClick={() => changeBookingStatus('deny', booking.id)}>❌</Button>
                               </Grid>
                             </Grid>
                           </CardContent>

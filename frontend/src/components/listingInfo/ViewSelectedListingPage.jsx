@@ -225,7 +225,6 @@ const ViewSelectedListingPage = () => {
             <Grid item xs={12}>
               {listingData.reviews &&
                 listingData.reviews
-                  .filter((review) => review.status === 'accepted')
                   .map((review, index) => (
                     <Card key={index} sx={{ marginBottom: 2 }}>
                       <CardContent>
