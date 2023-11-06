@@ -9,6 +9,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Alert, Typography, Button, Grid, Box, Card, CardContent, List, ListItem, ListItemText, ImageList, ImageListItem, TextField, Rating } from '@mui/material';
 
 import RatingDisplay from '../listings/RatingDisplay';
+import ShowThumbnail from './ShowThumbnail';
 
 const DEFAULT_CARD_IMG = 'https://files.catbox.moe/owobms.png';
 
@@ -144,15 +145,7 @@ const ViewSelectedListingPage = () => {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Box sx={{ height: 200 }}>
-            <img
-              src={listingData.thumbnail === '' ? DEFAULT_CARD_IMG : listingData.thumbnail}
-              alt={`${listingData.id} thumbnail`}
-              style={{
-                maxWidth: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}
-            />
+            <ShowThumbnail thumbnail={listingData.thumbnail} style={{ height: '100%', maxWidth: '100%' }} />
           </Box>
         </Grid>
         <Grid item xs={8}>
@@ -196,7 +189,7 @@ const ViewSelectedListingPage = () => {
               <List>
                 {listingData.metadata && listingData.metadata.amenities && listingData.metadata.amenities.map((amenity, index) => (
                   <ListItem key={index}>
-                    <ListItemText primary={`✅ ${amenity.name}`} />
+                    <ListItemText primary={`✅ ${amenity}`} />
                   </ListItem>
                 ))}
               </List>
@@ -209,11 +202,11 @@ const ViewSelectedListingPage = () => {
             </Grid>
             <Grid item xs={12}>
               <ImageList rowHeight={160} cols={4}>
-              {listingData.metadata && listingData.metadata.images && (listingData.metadata.images).map(obj => Object.entries(obj)[0]).map(([filename, fileUrl]) => (
-                <ImageListItem key={filename} cols={1}>
-                  <img src={fileUrl} alt={filename} />
-                </ImageListItem>
-              ))}
+                {listingData.metadata && listingData.metadata.images && (listingData.metadata.images).map(({ title, imageUrl }, index) => (
+                  <ImageListItem key={index} cols={1}>
+                    <img src={imageUrl} alt={title} />
+                  </ImageListItem>
+                ))}
               </ImageList>
             </Grid>
 
@@ -284,6 +277,7 @@ const ViewSelectedListingPage = () => {
               <Typography variant="h6">Leave a review!</Typography>
             </Grid>
             <Grid item xs={12}>
+<<<<<<< frontend/src/components/listingInfo/ViewSelectedListingPage.jsx
               <Box component="fieldset" borderColor="transparent">
                 <Rating
                   name="score"
@@ -292,6 +286,23 @@ const ViewSelectedListingPage = () => {
                   onChange={handleReviewInputChange}
                 />
               </Box>
+=======
+              <TextField
+                name="score"
+                label="Review Score (/5)"
+                value={review.score}
+                onChange={handleReviewInputChange}
+                fullWidth
+                required
+              />
+              <Rating
+                name="simple-controlled"
+                value={review.score}
+                onChange={(e, newValue) => {
+                  setReview({ ...review, score: newValue });
+                }}
+              />
+>>>>>>> frontend/src/components/listingInfo/ViewSelectedListingPage.jsx
             </Grid>
             <Grid item xs={12}>
               <TextField

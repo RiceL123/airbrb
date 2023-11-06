@@ -19,7 +19,6 @@ const HostListingsPage = () => {
     if (response.ok) {
       const data = await response.json();
       setListings(data.listings);
-      console.log(data);
     } else {
       console.error('Getting all listings failed.');
     }
@@ -67,7 +66,7 @@ const HostListingsPage = () => {
         {!authEmail && !authToken
           ? <Typography variant="h6">To view your listings, please <Link to='/login'>Login</Link></Typography>
           : (<>
-            <CreateListing />
+            <CreateListing reloadListings={getListings}/>
             <Typography variant="h2">Listings for {authEmail}.</Typography>
             <Typography variant="h4" sx={{ mb: 1 }}>Published Listings</Typography>
             {listings.filter(x => x.owner === authEmail && x.published).length === 0

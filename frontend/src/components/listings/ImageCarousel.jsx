@@ -1,47 +1,72 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardMedia, Tab, Tabs, Typography, Button } from '@mui/material';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
+import ImageListItemBar from '@mui/material/ImageListItemBar';
 
 const ImageCarousel = ({ images }) => {
-  const [tabValue, setTabValue] = React.useState(0);
+  const [tabValue, setTabValue] = useState(0);
+  const [showCarousel, setshowCarousel] = useState(true);
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (e, newValue) => {
     setTabValue(newValue);
   };
 
+  const toggleCarousel = () => {
+    setshowCarousel(!showCarousel);
+  }
+
   return (
     <>
-      <Tabs
-        value={tabValue}
-        onChange={handleChange}
-        variant="scrollable"
-        scrollButtons="auto"
-        aria-label="scrollable auto tabs example"
-      >
-        {images.map(({ title, imageUrl }, index) => (
-          <Tab
-            key={index}
-            label={title}
-            value={index}
-          />
-        ))}
-      </Tabs>
+      {showCarousel
+        ? (<>
+          <Tabs
+            value={tabValue}
+            onChange={handleChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            aria-label="scrollable auto tabs example"
+          >
+            {images.map(({ title, imageUrl }, index) => (
+              <Tab
+                key={index}
+                label={title}
+                value={index}
+              />
+            ))}
+          </Tabs>
 
-      {images[tabValue] && (
-        <Card>
-          <CardMedia
-            sx={{ height: 200, width: 200 }}
-            src={images[tabValue].imageUrl}
-          />
-          <CardContent>
-            <Typography variant="body2" color="textSecondary">
-              {images[tabValue].title}
-            </Typography>
-            <Button color="error" variant="outlined">
-              Delete
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+          <Card>
+            <CardMedia
+              sx={{ height: 200, width: 200 }}
+              image={images[tabValue].imageUrl}
+            />
+            <CardContent>
+              <Typography variant="body2" color="textSecondary">
+                {images[tabValue].title}
+              </Typography>
+            </CardContent>
+          </Card>
+        </>)
+        : (<ImageList rowHeight={160} cols={4} >
+          {
+            images.map((item, index) => (
+              <ImageListItem key={index}>
+                <img
+                  srcSet={`${item.imageUrl}`}
+                  src={`${item.imageUrl}`}
+                  alt={item.title}
+                  style={{ maxHeight: '100%' }}
+                  loading="lazy"
+                />
+                <ImageListItemBar
+                  title={item.title}
+                />
+              </ImageListItem>
+            ))
+          }
+        </ImageList >)}
+        <Button onClick={toggleCarousel} variant="outlined" sx={{ m: 2 }}>Toggle Image View</Button>
     </>
   );
 }

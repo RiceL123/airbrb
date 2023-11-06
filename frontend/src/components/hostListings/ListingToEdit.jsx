@@ -1,19 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Alert, TextField, Box, MenuItem, Input, Typography, Button, CardMedia, Card, Grid } from '@mui/material';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { DEFAULT_CARD_IMG } from '../listings/ListingCard';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+import DoneIcon from '@mui/icons-material/Done';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+
 import { apiCall, fileToDataUrl } from '../../helpers';
 import ImageCarousel from '../listings/ImageCarousel';
-import AvailabiltyList from './AvailabiltyList';
+import PropertyTypeSelect from './listingProperties/PropertyTypeSelect';
+import AddressFields from './listingProperties/AddressFields';
+import NumberField from './listingProperties/NumberField';
+import AmenitiesFields from './listingProperties/AmenitiesFields';
+import PublishListing from './PublishListing';
+import ImageOrYTLinkUpload from './listingProperties/ImageOrYTLink';
 
 const ListingToEdit = ({ listingInfo }) => {
   const { authToken } = useAuth();
   const { id } = useParams();
-  const body = {}
+  const navigate = useNavigate();
+
+  const [editSuccess, setEditSuccess] = useState(false);
 
   const [title, setTitle] = useState(listingInfo.title);
   const [address, setAddress] = useState(listingInfo.address);
@@ -21,108 +34,111 @@ const ListingToEdit = ({ listingInfo }) => {
   const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail || DEFAULT_CARD_IMG);
   const [listingImages, setListingImages] = useState((listingInfo.metadata.images).map(obj => Object.entries(obj)[0]));
   const [availability, setAvailability] = useState(listingInfo.availability);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+
+  const [metadata, setMetadata] = useState(listingInfo.metadata);
+  const [propertyType, setPropertyType] = useState(listingInfo.metadata.propertyType);
+  const [numberBeds, setNumberBeds] = useState(listingInfo.metadata.numberBeds);
+  const [numberBathrooms, setNumberBathrooms] = useState(listingInfo.metadata.numberBathrooms);
+  const [bedrooms, setBedrooms] = useState(listingInfo.metadata.bedrooms);
+  const [amenities, setAmenities] = useState(listingInfo.metadata.amenities);
+  const [images, setImages] = useState(listingInfo.metadata.images);
+
+  const [payload, setPayload] = useState({
+    title: listingInfo.title,
+    address: listingInfo.address,
+    price: listingInfo.price,
+    thumbnail: listingInfo.thumbnail,
+    metadata: listingInfo.metadata
+  })
 
   useEffect(() => {
-    // Update the body object when title changes
-    body.title = title;
-    body.address = address;
-    body.price = price;
-    body.thumbnail = thumbnail;
-  }, [title, address, price, thumbnail]);
+    setPayload({ title, address, price, thumbnail, metadata });
+    console.log(payload);
+  }, [title, address, price, thumbnail, metadata]);
 
-  const handleChange = (e) => {
+  useEffect(() => {
+    setMetadata({ propertyType, bedrooms, numberBathrooms, amenities, images })
+  }, [propertyType, bedrooms, numberBathrooms, amenities, images])
+
+  const handleChange = (e, output) => {
     e.preventDefault();
     const { name, value } = e.target;
     switch (name) {
       case 'title': setTitle(value); break;
-      case 'address': setAddress(value); break;
-      case 'price': setPrice(value); break;
+      case 'street': setAddress({ ...address, street: value }); break;
+      case 'city': setAddress({ ...address, city: value }); break;
+      case 'state': setAddress({ ...address, state: value }); break;
+      case 'price': if (/^\d+$/.test(value) || value === '') setPrice(value); break;
+      case 'propertyType': setPropertyType(value); break;
+      case 'bedrooms': setBedrooms(value); break;
+      case 'numberBathrooms': if (/^\d+$/.test(value) || value === '') setNumberBathrooms(value); break;
+      case 'numberBeds': if (/^\d+$/.test(value) || value === '') setNumberBeds(value); break;
+      case 'thumbnail': setThumbnail(output); break;
+      case 'youtubeVideoLink': setThumbnail(output); break;
     }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    apiCall('PUT', authToken, `/listings/${id}`, body)
-      .then(() => console.log('nice it was updated i hope'))
-      .catch(msg => alert(msg));
-  }
 
-  const updateThumbnail = (e) => {
-    const thumnailFile = e.target.files[0];
-    fileToDataUrl(thumnailFile)
-      .then((fileUrl) => setThumbnail(fileUrl))
+    apiCall('PUT', authToken, `/listings/${id}`, payload)
+      .then(() => { setEditSuccess(true); setTimeout(() => setEditSuccess(false), 2000) })
       .catch(msg => alert(msg));
   }
 
   const addImages = (e) => {
     console.log(Array.from(e.target.files));
     const selectedImages = e.target.files;
-    const imagesCopy = [...listingInfo.metadata.images];
+    // const imagesCopy = [...listingInfo.metadata.images]; // instead of appended just reset
+    const imagesCopy = [];
 
     const processImages = Array.from(selectedImages).map((file) => {
       return fileToDataUrl(file)
         .then((fileUrl) => {
           imagesCopy.push({ title: file.name, imageUrl: fileUrl });
         })
-        .catch(() => alert('Invalid image'));
     });
 
     // Double check this works... you'd need to PUT req rather than edit setListingInfo
     Promise.all(processImages)
       .then(() => {
-        setListingImages(imagesCopy);
-      });
+        setImages(imagesCopy);
+      })
+      .catch(() => alert('please ensure all images are png or jpg'))
   };
 
-  const publishListingRequest = async () => {
-    console.log(availability);
-    const newAvailability = availability.slice(); // make a copy
-    newAvailability.push({
-      startDate: startDate.format('YYYY-MM-DD'),
-      endDate: endDate.format('YYYY-MM-DD')
-    });
-    console.log(newAvailability);
-
-    const response = await apiCall('PUT', authToken, '/listings/publish/' + id, { availability: newAvailability });
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-      alert('Published!');
-      setAvailability(newAvailability);
-    } else {
-      alert('Error occurred while publishing liting.');
-    }
+  const addAmenity = () => {
+    setAmenities([...amenities, '']);
   }
 
-  const publishListing = () => {
-    if (startDate && endDate) {
-      if (startDate < endDate) {
-        publishListingRequest()
-          .catch((error) => {
-            console.log(error);
-          });
-      } else {
-        alert('Start date must be before end date');
-      }
-    } else {
-      alert('Please select both startDate and endDate.');
-    }
+  const deleteAmenity = (index) => {
+    const updatedAmenities = [...amenities];
+    updatedAmenities.splice(index, 1);
+    setAmenities(updatedAmenities);
   }
 
-  const unPublishListing = async () => {
-    const response = await apiCall('PUT', authToken, `/listings/unpublish/${id}`);
-    if (response.ok) setAvailability([]);
-    else alert('Error occurred while unpublishing listing.');
-  }
+  const handleAmenityChange = (event, index) => {
+    const { value } = event.target;
+    const updatedAmenities = [...amenities];
+    updatedAmenities[index] = value;
+    setAmenities(updatedAmenities);
+  };
 
   return (
     <>
       <Grid container spacing={2}>
-        <Grid item xs={8}>
+        <Grid item xs={12} sm={8}>
           <Box component="form" sx={{ p: 1, m: 1 }}>
-            <Typography variant="h6">Editing</Typography>
+            <Stack direction='row' justifyContent="space-between">
+              <Typography variant="h4">Editing</Typography>
+              <Button
+                variant='outlined'
+                endIcon={<KeyboardArrowDownIcon />}
+                onClick={() => window.scrollTo(0, document.body.scrollHeight)}
+                sx={{ display: { sm: 'none' } }}>
+                Publish
+              </Button>
+            </Stack>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -131,73 +147,34 @@ const ListingToEdit = ({ listingInfo }) => {
                   defaultValue={listingInfo.title}
                   onChange={handleChange}
                   fullWidth
-                  sx={{ mb: 2 }}
                 />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="address"
-                  label="Address (Street)"
-                  defaultValue={listingInfo.address.street}
-                  onChange={handleChange}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
+              <AddressFields
+                street={address.street}
+                city={address.city}
+                state={address.state}
+                handleChange={handleChange}
+              />
+              <Grid item xs={12} md={6}>
+                <NumberField name='price' label='Price (Nightly)' value={price} onChange={handleChange} />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="address"
-                  label="Address (City)"
-                  defaultValue={listingInfo.address.city}
-                  onChange={handleChange}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
+              <Grid item xs={12} md={6}>
+                <PropertyTypeSelect value={propertyType} onChange={handleChange} />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  name="address"
-                  label="Address (State)"
-                  defaultValue={listingInfo.address.state}
-                  onChange={handleChange}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
+              <Grid item xs={12} md={6}>
+                <NumberField name='numberBathrooms' label='Number of Bathrooms' value={numberBathrooms} onChange={handleChange} />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <NumberField name='numberBeds' label='Number of Bedrooms' value={numberBeds} onChange={handleChange} />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  name="price"
-                  label="Listing Price (Nightly)"
-                  value={listingInfo.price}
-                  onChange={handleChange}
-                  inputProps={{
-                    inputMode: 'numeric',
-                    pattern: '[0-9]*',
-                  }}
-                  sx={{ mb: 2 }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Card
-                  sx={{ mb: 2, p: 1 }}>
-                  <Typography variant="body1">Thumbnail</Typography>
-                  <CardMedia
-                    sx={{ height: 200, width: 200 }}
-                    image={thumbnail}
-                  />
-                  <Input
-                    name="thumbnail"
-                    label="Thumbnail"
-                    type="file"
-                    onChange={updateThumbnail}
-                  />
-                </Card>
+                <ImageOrYTLinkUpload thumbnail={thumbnail} onChange={handleChange} />
               </Grid>
               <Grid item xs={12}>
                 <Card
                   sx={{ mb: 2, p: 1 }}>
                   <Typography variant="body1">Listing Images</Typography>
-                  {Array.isArray(listingImages) && listingImages.length > 0 ? (<ImageCarousel images={listingImages} />) : (<Typography variant="caption">No images available</Typography>)}
+                  {Array.isArray(images) && images.length > 0 ? (<ImageCarousel images={images} />) : (<Typography variant="caption">No images available</Typography>)}
                   <Input
                     name="images"
                     type="file"
@@ -210,58 +187,24 @@ const ListingToEdit = ({ listingInfo }) => {
                 </Card>
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  select
-                  name="propertyType"
-                  label="Property Type"
-                  value={'temp'}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                  sx={{ mb: 2 }}
-                >
-                  <MenuItem value="temp">backend doesnt store this yet so can&apos;t update it</MenuItem>
-                  <MenuItem value="entirePlace">Entire Place</MenuItem>
-                  <MenuItem value="privateRoom">Private Room</MenuItem>
-                  <MenuItem value="hotelRoom">Hotel Room</MenuItem>
-                  <MenuItem value="sharedRoom">Shared Room</MenuItem>
-                </TextField>
+                <AmenitiesFields
+                  amenities={amenities}
+                  handleAmenityChange={handleAmenityChange}
+                  addAmenity={addAmenity}
+                  deleteAmenity={deleteAmenity}
+                />
               </Grid>
-              <Grid item xs={12}>
-                <Button variant="contained" onClick={handleSubmit}>Submit</Button>
-                <Button variant="outlined" onClick={handleSubmit}>Cancel</Button>
+              <Grid item xs={12} md={4}>
+                <Button variant="contained" onClick={handleSubmit} endIcon={editSuccess ? <DoneIcon /> : null}>Submit</Button>
+                <Button variant="contained" onClick={() => navigate('/hosted')}>Cancel</Button>
               </Grid>
             </Grid>
           </Box>
         </Grid>
-
-        <Grid item xs={4}>
-          {availability.length >= 1
-            ? (<Box>
-              <Typography variant="h6">Current Availabilities</Typography>
-              <AvailabiltyList availabilites={availability} />
-              <Button variant="outlined" onClick={unPublishListing}>unPublish</Button>
-            </Box>)
-            : (<Box section="section" sx={{ p: 1, m: 1 }}>
-              <Typography variant="h6">Publishing</Typography>
-              <Alert severity="info">Pick certain dates to make available for guests.</Alert>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Start Date"
-                  value={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-                <DatePicker
-                  label="End Date"
-                  value={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </LocalizationProvider>
-              <Button variant="outlined" onClick={publishListing}>Publish!</Button>
-            </Box>)
-          }
+        <Grid item xs={12} sm={4}>
+          <Card sx={{ p: 1, mt: 1 }}>
+            <PublishListing id={id} availability={availability} setAvailability={setAvailability} />
+          </Card>
         </Grid>
       </Grid>
     </>
