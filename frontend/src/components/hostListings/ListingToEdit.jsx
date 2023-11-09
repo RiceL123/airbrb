@@ -34,7 +34,6 @@ const ListingToEdit = ({ listingInfo }) => {
   const [price, setPrice] = useState(listingInfo.price);
   const [thumbnail, setThumbnail] = useState(listingInfo.thumbnail);
   const [availability, setAvailability] = useState(listingInfo.availability);
-
   const [metadata, setMetadata] = useState(listingInfo.metadata);
   const [propertyType, setPropertyType] = useState(listingInfo.metadata.propertyType);
   const [numberBeds, setNumberBeds] = useState(listingInfo.metadata.numberBeds);

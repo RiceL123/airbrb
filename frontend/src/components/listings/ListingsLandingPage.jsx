@@ -12,8 +12,8 @@ import SearchContainer from './SearchContainer';
 const ListingsLandingPage = () => {
   const { authEmail, authToken } = useAuth();
   const [listings, setListings] = useState([]);
+  const [displayListings, setDisplayListings] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
-  // const [filteredListings, setFilteredListings] = useState(listings);
 
   const getAllBookings = async () => {
     const response = await apiCall('GET', authToken, '/bookings', undefined);
@@ -71,6 +71,7 @@ const ListingsLandingPage = () => {
       });
 
       setListings(filteredListings);
+      setDisplayListings(filteredListings);
       console.log(data);
     } else {
       console.error('Getting all listings failed.');
@@ -83,8 +84,22 @@ const ListingsLandingPage = () => {
   }, []);
 
   const handleSearch = (searchText) => {
-    // Handle
-    console.log(searchText);
+    if (searchText === '' || searchText.length === 0) {
+      // Reset to default view with no filtering
+      setDisplayListings(listings);
+      return;
+    }
+
+    searchText = searchText.toLowerCase();
+    const listingsCopy = [];
+    listings.forEach((listing) => {
+      if (listing.title.toLowerCase().includes(searchText) === true || listing.address.city.toLowerCase().includes(searchText) === true) {
+        listingsCopy.push(listing);
+      }
+    });
+    setDisplayListings(listingsCopy);
+
+    console.log(listingsCopy);
   }
 
   return (
@@ -101,7 +116,7 @@ const ListingsLandingPage = () => {
       </Box>
       <Box section="section" sx={{ p: 1, m: 1 }}>
         <Grid container spacing={1}>
-          {Array.isArray(listings) && listings.map((listing) => (
+          {Array.isArray(displayListings) && displayListings.map((listing) => (
             <Grid item xs={12} sm={6} md={4} key={listing.id}>
               <ListingCard listing={listing} key={listing.id} />
             </Grid>
