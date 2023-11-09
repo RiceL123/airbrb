@@ -69,6 +69,7 @@ const ListingsLandingPage = () => {
         if (response.ok) {
           const data = await response.json();
           listing.availability = data.listing.availability;
+          listing.metadata = data.listing.metadata;
         } else {
           console.error('Getting specific listing failed.');
         }
@@ -142,10 +143,6 @@ const ListingsLandingPage = () => {
         passes = true;
       }
 
-      if (searchText === '') {
-        passes = true;
-      }
-
       // Number of bedrooms filter
       const totalBeds = listing.metadata.bedrooms.reduce((sum, bedroom) => sum + bedroom.beds, 0);
       if (totalBeds < minBeds || totalBeds > maxBeds) {
@@ -160,6 +157,10 @@ const ListingsLandingPage = () => {
       // Price filter
       if (parseFloat(listing.price) < minPrice || listing.price > maxPrice) {
         passes = false;
+      }
+
+      if (searchText === '') {
+        passes = true;
       }
 
       if (passes) {
