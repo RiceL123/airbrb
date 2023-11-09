@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { apiCall } from '../../helpers';
 
-import { Typography, Grid, Button, TextField, Slider, Select, MenuItem } from '@mui/material';
+import { Typography, Grid, Button, TextField, Slider, Select, MenuItem, InputAdornment } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { Box } from '@mui/system';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import ListingCard from './ListingCard';
-import SearchBar from './SearchBar';
 
 const ListingsLandingPage = () => {
   const { authEmail, authToken } = useAuth();
@@ -18,20 +18,18 @@ const ListingsLandingPage = () => {
 
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [myBookings, setMyBookings] = useState([]);
-  const [minBedrooms, setMinBedrooms] = useState(0);
-  const [maxBedrooms, setMaxBedrooms] = useState(25);
+  const [minBeds, setMinBeds] = useState(0);
+  const [maxBeds, setMaxBeds] = useState(25);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(5000);
-  const [minRating, setMinRating] = useState(1);
-  const [maxRating, setMaxRating] = useState(5);
   const [searchMode, setSearchMode] = useState('default');
+  const [searchText, setSearchText] = useState('');
 
-  const handleBedroomsChange = (event, newValue) => {
-    setMinBedrooms(newValue[0]);
-    setMaxBedrooms(newValue[1]);
-    setSearchMode('');
+  const handleBedsChange = (event, newValue) => {
+    setMinBeds(newValue[0]);
+    setMaxBeds(newValue[1]);
   };
 
   const handlePriceChange = (event, newValue) => {
@@ -39,10 +37,9 @@ const ListingsLandingPage = () => {
     setMaxPrice(newValue[1]);
   };
 
-  const handleRatingChange = (event, newValue) => {
-    setMinRating(newValue[0]);
-    setMaxRating(newValue[1]);
-  };
+  const handleRatingSearch = (newValue) => {
+    setSearchMode(newValue);
+  }
 
   const getAllBookings = async () => {
     const response = await apiCall('GET', authToken, '/bookings', undefined);
@@ -65,6 +62,17 @@ const ListingsLandingPage = () => {
 
       // Filter listings where published is true
       const filteredListings = data.listings.filter(listing => listing.published === true);
+
+      // Grab availability from specific listing data
+      for (const listing of filteredListings) {
+        const response = await apiCall('GET', authToken, `/listings/${listing.id}`, undefined);
+        if (response.ok) {
+          const data = await response.json();
+          listing.availability = data.listing.availability;
+        } else {
+          console.error('Getting specific listing failed.');
+        }
+      }
 
       // Sort the filtered listings alphabetically by title
       filteredListings.sort((a, b) => a.title.localeCompare(b.title));
@@ -112,23 +120,53 @@ const ListingsLandingPage = () => {
     getListings();
   }, []);
 
-  const handleSearch = (searchText) => {
+  const isAvailabilityInRange = (availability, startDate, endDate) => {
+    return startDate <= availability.endDate && endDate >= availability.startDate;
+  };
+
+  const handleSearch = () => {
+    console.log(searchText);
+
     if (searchText === '' || searchText.length === 0) {
       // Reset to default view with no filtering
       setDisplayListings(listings);
-      return;
     }
 
-    searchText = searchText.toLowerCase();
+    const inputText = searchText.toLowerCase();
     const listingsCopy = [];
     listings.forEach((listing) => {
-      if (listing.title.toLowerCase().includes(searchText) === true || listing.address.city.toLowerCase().includes(searchText) === true) {
+      // Set filters based on advanced search
+      // Name, city filter
+      let passes = false;
+      if ((searchText !== '') && (listing.title.toLowerCase().includes(inputText) === true || listing.address.city.toLowerCase().includes(inputText) === true)) {
+        passes = true;
+      }
+
+      if (searchText === '') {
+        passes = true;
+      }
+
+      // Number of bedrooms filter
+      const totalBeds = listing.metadata.bedrooms.reduce((sum, bedroom) => sum + bedroom.beds, 0);
+      if (totalBeds < minBeds || totalBeds > maxBeds) {
+        passes = false;
+      }
+
+      // Date range filter
+      if (!listing.availability.some(availability => isAvailabilityInRange(availability, startDate, endDate))) {
+        passes = false;
+      }
+
+      // Price filter
+      if (parseFloat(listing.price) < minPrice || listing.price > maxPrice) {
+        passes = false;
+      }
+
+      if (passes) {
         listingsCopy.push(listing);
       }
     });
     setDisplayListings(listingsCopy);
-
-    console.log(listingsCopy);
   }
 
   return (
@@ -142,7 +180,20 @@ const ListingsLandingPage = () => {
       <Box section="section" sx={{ p: 1, m: 1 }}>
         <Grid container spacing={1}>
           <Grid item xs={10}>
-            <SearchBar onSearch={handleSearch} />
+            <TextField
+              label="Search Listings"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              variant="outlined"
+              fullWidth
+            />
           </Grid>
           <Grid item xs={2}>
             <Button variant="contained" onClick={handleSearch}>Search</Button>
@@ -154,26 +205,17 @@ const ListingsLandingPage = () => {
           {
             showAdvancedSearch &&
               <Grid container spacing={2}>
-                <Grid item xs={2}>
-                  <Typography variant="subtitle1">Bedrooms</Typography>
+                <Grid item xs={3}>
+                  <Typography variant="subtitle1">Beds</Typography>
                   <Slider
-                    value={[minBedrooms, maxBedrooms]}
-                    onChange={handleBedroomsChange}
+                    value={[minBeds, maxBeds]}
+                    onChange={handleBedsChange}
                     valueLabelDisplay="auto"
                     valueLabelFormat={(value) => (value === 0 ? 'Any' : value)}
                     max={25}
                   />
                 </Grid>
-                <Grid item xs={2}>
-                  <Typography variant="subtitle1">Score Range</Typography>
-                  <Slider
-                    value={[minRating, maxRating]}
-                    onChange={handleRatingChange}
-                    valueLabelDisplay="auto"
-                    max={5}
-                  />
-                </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={3}>
                   <Typography variant="subtitle1">Date Range</Typography>
                   <Grid container spacing={0}>
                     <Grid item xs={6}>
@@ -198,7 +240,7 @@ const ListingsLandingPage = () => {
                     </Grid>
                   </Grid>
                 </Grid>
-                <Grid item xs={2}>
+                <Grid item xs={3}>
                   <Typography variant="subtitle1">Price Range</Typography>
                   <Slider
                     value={[minPrice, maxPrice]}
@@ -208,12 +250,12 @@ const ListingsLandingPage = () => {
                     max={5000}
                   />
                 </Grid>
-                <Grid item xs={2}>
+                <Grid item xs={3}>
                   <Typography variant="subtitle1">Rating Search</Typography>
                   <Select
                     label="Select an Option"
                     value={searchMode}
-                    onChange={handlePriceChange} // change this
+                    onChange={(event) => handleRatingSearch(event.target.value)}
                   >
                     <MenuItem value="default">Default</MenuItem>
                     <MenuItem value="lowToHigh">Ratings low to high</MenuItem>
