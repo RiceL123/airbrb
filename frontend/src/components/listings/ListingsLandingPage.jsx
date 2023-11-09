@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { apiCall } from '../../helpers';
 
-import { Typography, Grid } from '@mui/material';
-import { Box } from '@mui/system';
+import { Typography, Grid, Button } from '@mui/material';
+import { Box, } from '@mui/system';
 
 import ListingCard from './ListingCard';
 import SearchBar from './SearchBar';
@@ -111,7 +111,14 @@ const ListingsLandingPage = () => {
         <Typography variant="body1">Hey {!authEmail && !authToken ? 'Guest User' : authEmail}!</Typography>
       </Box>
       <Box section="section" sx={{ p: 1, m: 1 }}>
-        <SearchBar onSearch={handleSearch} />
+        <Grid container spacing={1}>
+          <Grid item xs={10}>
+            <SearchBar onSearch={handleSearch} />
+          </Grid>
+          <Grid item xs={2}>
+            <Button variant="contained" onClick={handleSearch}>Search</Button>
+          </Grid>
+        </Grid>
         <SearchContainer />
       </Box>
       <Box section="section" sx={{ p: 1, m: 1 }}>
