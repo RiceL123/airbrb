@@ -125,6 +125,29 @@ const ListingsLandingPage = () => {
     return startDate <= availability.endDate && endDate >= availability.startDate;
   };
 
+  const checkAdvancedFilters = (listing) => {
+    let passes = true;
+    // Number of bedrooms filter
+    const totalBeds = listing.metadata.bedrooms.reduce((sum, bedroom) => sum + parseInt(bedroom.beds), 0);
+    if (totalBeds < minBeds || totalBeds > maxBeds) {
+      passes = false;
+    }
+
+    // Date range filter
+    if (startDate !== null && endDate !== null) {
+      if (!listing.availability.some(availability => isAvailabilityInRange(availability, startDate, endDate))) {
+        passes = false;
+      }
+    }
+
+    // Price filter
+    if (parseFloat(listing.price) < minPrice || listing.price > maxPrice) {
+      passes = false;
+    }
+
+    return passes;
+  }
+
   const handleSearch = () => {
     console.log(searchText);
 
@@ -137,30 +160,11 @@ const ListingsLandingPage = () => {
     const listingsCopy = [];
     listings.forEach((listing) => {
       // Set filters based on advanced search
-      // Name, city filter
-      let passes = false;
-      if ((searchText !== '') && (listing.title.toLowerCase().includes(inputText) === true || listing.address.city.toLowerCase().includes(inputText) === true)) {
-        passes = true;
-      }
-
-      // Number of bedrooms filter
-      const totalBeds = listing.metadata.bedrooms.reduce((sum, bedroom) => sum + bedroom.beds, 0);
-      if (totalBeds < minBeds || totalBeds > maxBeds) {
-        passes = false;
-      }
-
-      // Date range filter
-      if (!listing.availability.some(availability => isAvailabilityInRange(availability, startDate, endDate))) {
-        passes = false;
-      }
-
-      // Price filter
-      if (parseFloat(listing.price) < minPrice || listing.price > maxPrice) {
-        passes = false;
-      }
-
+      let passes = true;
       if (searchText === '') {
-        passes = true;
+        passes = checkAdvancedFilters(listing);
+      } else {
+        passes = (listing.title.toLowerCase().includes(inputText) === true || listing.address.city.toLowerCase().includes(inputText) === true) && checkAdvancedFilters(listing);
       }
 
       if (passes) {
