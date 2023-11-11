@@ -148,14 +148,34 @@ const ListingsLandingPage = () => {
     return passes;
   }
 
-  const handleSearch = () => {
-    console.log(searchText);
+  const sortByReviewScore = (listings, sortOrder = 'highToLow') => {
+    const sortedListings = listings.sort((a, b) => {
+      // Inner function to get average score
+      const getAverageScore = (listing) => {
+        if (!listing.reviews || listing.reviews.length === 0) {
+          return 0;
+        }
+        const totalScore = listing.reviews.reduce((sum, review) => sum + review.score, 0);
+        return totalScore / listing.reviews.length;
+      };
 
+      // Based on sorting factor we'll return the order
+      const averageScoreA = getAverageScore(a);
+      const averageScoreB = getAverageScore(b);
+      const factor = (sortOrder === 'lowToHigh') ? -1 : 1;
+      return factor * (averageScoreB - averageScoreA);
+    });
+
+    return sortedListings;
+  };
+
+  const handleSearch = () => {
     if (searchText === '' || searchText.length === 0) {
       // Reset to default view with no filtering
       setDisplayListings(listings);
     }
 
+    // Filter listings based on search params
     const inputText = searchText.toLowerCase();
     const listingsCopy = [];
     listings.forEach((listing) => {
@@ -171,7 +191,13 @@ const ListingsLandingPage = () => {
         listingsCopy.push(listing);
       }
     });
-    setDisplayListings(listingsCopy);
+
+    // Now sort based on rating search
+    if (listingsCopy !== 'default') {
+      setDisplayListings(sortByReviewScore(listingsCopy, searchMode));
+    } else {
+      setDisplayListings(listingsCopy);
+    }
   }
 
   return (
