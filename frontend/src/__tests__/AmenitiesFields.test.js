@@ -6,7 +6,7 @@ describe('AmenitiesFields component', () => {
   it('renders correctly', () => {
     const amenities = ['Amenity 1', 'Amenity 2'];
     render(<AmenitiesFields amenities={amenities} />);
-    
+
     amenities.forEach((amenity) => {
       expect(screen.getByDisplayValue(amenity)).toBeInTheDocument();
     });

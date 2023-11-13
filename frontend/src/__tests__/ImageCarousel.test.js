@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent  } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ImageCarousel from '../components/listings/ImageCarousel';
 
 describe('image carousel renders correctly', () => {

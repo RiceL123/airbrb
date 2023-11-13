@@ -1,17 +1,50 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import MenuToggle from '../components/MenuToggle';
+import { MemoryRouter } from 'react-router-dom';
 
-describe('show menu toggle correctly', () => {
-  it('toggles on and off', () => {
-    
-  });
+describe('MenuToggle component', () => {
+  it('renders correctly', () => {
+    render(
+      <MemoryRouter>
+        <MenuToggle />
+      </MemoryRouter>
+    );
 
-  it('renders when toggled on', () => {
-    
-  });
+    expect(screen.queryByText('View Hosted')).toBeNull();
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByText('View Hosted')).toBeInTheDocument();
+  })
 
-  it('renders when toggled off', () => {
-    
-  });
-})
+  it('handles button press correctly for hosted', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <MenuToggle />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText('View Hosted')).toBeNull();
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByText('View Hosted')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('View Hosted'));
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.queryByText('View Hosted')).toBeInTheDocument();
+  })
+
+  it('handles button press correctly for all listings', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <MenuToggle />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText('View All Listings')).toBeNull();
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByText('View All Listings')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('View All Listings'));
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.queryByText('View All Listings')).toBeInTheDocument();
+  })
+});

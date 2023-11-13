@@ -9,7 +9,7 @@ describe('show listing with correct scores', () => {
     }
 
     render(<RatingDisplay listing={ sampleListing } />);
-    
+
     // Use regex to match... text is broken up
     const text = screen.getByText(/Reviews: 0/);
     expect(text).toBeInTheDocument();
@@ -27,7 +27,7 @@ describe('show listing with correct scores', () => {
     }
 
     render(<RatingDisplay listing={ sampleListing } />);
-    
+
     // Use regex to match... text is broken up
     const text = screen.getByText(/Reviews: 1/);
     expect(text).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('show listing with correct scores', () => {
     }
 
     render(<RatingDisplay listing={ sampleListing } />);
-    
+
     // Use regex to match... text is broken up
     const text = screen.getByText(/Reviews: 3/);
     expect(text).toBeInTheDocument();
