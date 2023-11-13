@@ -13,7 +13,7 @@ const RatingDisplay = ({ listing }) => {
     }
 
     const averageScore = totalScore / listing.reviews.length;
-    return averageScore;
+    return Math.floor(averageScore);
   }
 
   return (
