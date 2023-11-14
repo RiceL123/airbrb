@@ -16,6 +16,7 @@ import AmenitiesFields from './listingProperties/AmenitiesFields';
 import BedroomFields from './listingProperties/BedroomFields';
 import ImageCarousel from '../listings/ImageCarousel';
 import ImageOrYTLinkUpload from './listingProperties/ImageOrYTLink';
+import UploadJSON from './listingProperties/UploadJSON';
 
 const CreateListing = ({ reloadListings }) => {
   const { authToken } = useAuth();
@@ -31,7 +32,6 @@ const CreateListing = ({ reloadListings }) => {
     price: 0.0,
     thumbnail: { isYoutubeVideoId: false, src: '' },
     metadata: {
-      ownerEmail: '',
       propertyType: '',
       bedrooms: [],
       numberBathrooms: 0,
@@ -94,6 +94,22 @@ const CreateListing = ({ reloadListings }) => {
       });
     }
   };
+
+  const handleJSONFile = (e, listingUploaded) => {
+    console.log(listingUploaded);
+    setListingData({
+      ...listingUploaded,
+    });
+
+    // for (const addressField in ['street', 'city', 'state']) {
+    //   handleInputChangeAddress({
+    //     target: {
+    //       name: addressField,
+    //       value: listingUploaded.address[addressField]
+    //     }
+    //   })
+    // }
+  }
 
   const handleCreateListing = async () => {
     if (!listingData.title) {
@@ -322,9 +338,12 @@ const CreateListing = ({ reloadListings }) => {
           {isFormVisible ? 'Confirm New Listing' : 'Create Listing'}
         </Button>
         {isFormVisible
-          ? <Button color='error' variant="outlined" sx={{ mt: 2 }} onClick={handleCancelCreate}>
-            Cancel
-          </Button>
+          ? <span style={{ marginTop: 2 }}>
+            <Button color='error' variant="outlined" onClick={handleCancelCreate}>
+              Cancel
+            </Button>
+            <UploadJSON handleJSONFile={handleJSONFile} />
+          </span>
           : <></>
         }
       </Box>
