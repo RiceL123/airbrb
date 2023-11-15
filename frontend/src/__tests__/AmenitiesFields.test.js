@@ -31,4 +31,18 @@ describe('AmenitiesFields component', () => {
     fireEvent.click(addButton);
     expect(addAmenityMock).toHaveBeenCalled();
   });
+
+  it('handles input for textfield', () => {
+    const amenities = ['Amenity 1', 'Amenity 2'];
+    const handleAmenityChange = jest.fn();
+    render(<AmenitiesFields amenities={amenities} handleAmenityChange={handleAmenityChange} />);
+
+    amenities.forEach((amenity, index) => {
+      const input = screen.getByDisplayValue(amenity);
+      fireEvent.change(input, { target: { value: 'New Amenity' } });
+      expect(handleAmenityChange).toHaveBeenCalled(); 
+    });
+
+    expect(screen.getByRole('button', { name: 'Add Amenity' })).toBeInTheDocument();
+  });
 });
