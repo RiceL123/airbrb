@@ -318,7 +318,7 @@ const CreateListing = ({ reloadListings }) => {
             </Grid>
           )}
         </Box>
-        <Button variant="contained" sx={{ mt: 2, mr: 2 }} onClick={isFormVisible ? handleCreateListing : toggleFormVisibility}>
+        <Button variant="contained" sx={{ mt: 2, mr: 2 }} aria-label="create-listing-button" onClick={isFormVisible ? handleCreateListing : toggleFormVisibility}>
           {isFormVisible ? 'Confirm New Listing' : 'Create Listing'}
         </Button>
         {isFormVisible
