@@ -40,7 +40,7 @@ describe('AmenitiesFields component', () => {
     amenities.forEach((amenity, index) => {
       const input = screen.getByDisplayValue(amenity);
       fireEvent.change(input, { target: { value: 'New Amenity' } });
-      expect(handleAmenityChange).toHaveBeenCalled(); 
+      expect(handleAmenityChange).toHaveBeenCalled();
     });
 
     expect(screen.getByRole('button', { name: 'Add Amenity' })).toBeInTheDocument();

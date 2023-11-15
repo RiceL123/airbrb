@@ -36,7 +36,7 @@ describe('show thumbnail component with youtube thumb', () => {
   beforeEach(() => setup());
 
   it('renders with correct alt text for YouTube video thumbnail', () => {
-    const iframe = screen.getByRole('iframe', { hidden: true });
+    const iframe = screen.getByLabelText('listing yt iframe thumbnail');
     expect(iframe).toBeInTheDocument();
   });
 })

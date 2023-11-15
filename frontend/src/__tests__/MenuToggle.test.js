@@ -47,4 +47,16 @@ describe('MenuToggle component', () => {
     fireEvent.click(screen.getByRole('button'));
     expect(screen.queryByText('View All Listings')).toBeInTheDocument();
   })
+
+  it('handles incorrect input for toggle', () => {
+    render(
+      <MemoryRouter>
+        <MenuToggle />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText('View Hosted')).toBeNull();
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(screen.queryByText('View Hosted')).toBeNull();
+  })
 });
