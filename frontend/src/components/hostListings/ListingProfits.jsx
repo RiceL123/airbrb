@@ -4,23 +4,19 @@ import { Card, CardContent } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 
 const ListingProfits = ({ listings, bookings }) => {
-  const uData = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
-  const xLabels = [
-    'Page A',
-    'Page B',
-    'Page C',
-    'Page D',
-    'Page E',
-    'Page F',
-    'Page G',
-  ];
+  // const uData = [25, 60, 90, 10, 3, 0, 0, 10, 90, 200, 200]
+  const xLabels = [...Array(30).keys()];
 
-  const profitPerDay = []
+  const profitPerDay = Array(30).fill(0);
 
   // Calculate total profits
   const calculateProfits = () => {
-    console.log(listings)
-    console.log(bookings);
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    console.log(`today = ${today}; thirtydaysago = ${thirtyDaysAgo}`);
+    const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
     let totalProfits = 0;
 
@@ -33,13 +29,25 @@ const ListingProfits = ({ listings, bookings }) => {
       const listing = listings.find(x => x.id === booking.listingId);
       console.log(listing);
 
+      // only looking at dates in the last 30 days
+      if (startDate > today || endDate <= thirtyDaysAgo) {
+        continue;
+      }
+
+      console.log(booking)
       while (startDate.getDate() <= endDate.getDate()) {
-        // Add the date and the price per night to the profitPerDay array
-        profitPerDay.push({
-          date: new Date(startDate), // Convert to a new date object to avoid reference issues
-          price: 1,
-        });
-        startDate.setDate(startDate.getDate() + 1); // Move to the next day
+        const utc1 = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+        const utc2 = Date.UTC(thirtyDaysAgo.getFullYear(), thirtyDaysAgo.getMonth(), thirtyDaysAgo.getDate());
+
+        const dateDifference = Math.floor((utc2 - utc1) / _MS_PER_DAY);
+
+        console.log(`dateDifference ${dateDifference} of ${startDate} - ${thirtyDaysAgo}`);
+
+        if (dateDifference >= 0 || dateDifference < 30) {
+          profitPerDay[dateDifference] = 5
+        }
+
+        startDate.setDate(startDate.getDate() + 1);
       }
 
       totalProfits += parseFloat(booking.totalPrice);
@@ -53,17 +61,19 @@ const ListingProfits = ({ listings, bookings }) => {
 
   return (
     <>
-      <Typography>Profits</Typography>
       <Card>
+        <Typography>Profits for past 30 days</Typography>
         <CardContent>
           <Typography>Total Profits: ${totalProfits.toFixed(2)}</Typography>
           <BarChart
             width={500}
             height={300}
             series={[
-              { data: uData, label: 'uv', id: 'uvId' },
+              { data: profitPerDay, id: 'uvId', stack: 'total' }
             ]}
-            xAxis={[{ data: xLabels, scaleType: 'band' }]}
+            xAxis={[
+              { label: 'how many days ago', data: xLabels, scaleType: 'band' }
+            ]}
           />
         </CardContent>
       </Card>
