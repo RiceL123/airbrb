@@ -7,8 +7,8 @@ import Stack from '@mui/material/Stack';
 import DoneIcon from '@mui/icons-material/Done';
 
 const ThumbnailYoutubeUpload = ({ thumbnail, onChange }) => {
-  const [youtubeVideoId, setYoutubeVideoId] = useState(thumbnail.src);
-  const [youtubeVideoLink, setYoutubeVideoLink] = useState(thumbnail.src !== '' ? `https://www.youtube.com/embed/${youtubeVideoId}` : '');
+  const [youtubeVideoId, setYoutubeVideoId] = useState(thumbnail.isYoutubeVideoId ? thumbnail.src : '');
+  const [youtubeVideoLink, setYoutubeVideoLink] = useState(thumbnail.src !== '' && thumbnail.isYoutubeVideoId ? `https://www.youtube.com/embed/${youtubeVideoId}` : '');
   const [isValidLink, setIsValidLink] = useState(false);
 
   // youtube id extraction from https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url/27728417#27728417

@@ -110,7 +110,6 @@ const UploadJSON = ({ handleJSONFile }) => {
             currListing[key] = value;
           }
         }
-        console.log(currListing);
         handleJSONFile(e, currListing);
       })
       .catch(msg => alert(msg))

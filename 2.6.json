@@ -1,0 +1,37 @@
+{
+  "title": "My humble abode",
+  "address": {
+    "street": "375 Anzac Parade",
+    "city": "Sydney",
+    "state": "NSW"
+  },
+  "price": 100,
+  "thumbnail": {
+    "isYoutubeVideoId": true,
+    "src": "miIruPhFOK0"
+  },
+  "metadata": {
+    "propertyType": "entirePlace",
+    "bedrooms": [
+      {
+        "name": "master bedroom",
+        "beds": "1"
+      }
+    ],
+    "numberBathrooms": 0,
+    "amenities": [
+      "swimming pool",
+      "air conditioner"
+    ],
+    "images": [
+      {
+        "title": "master bedroom.jpg",
+        "imageUrl": "https://img.freepik.com/premium-photo/girl-with-white-hair-blue-eyes-looks-camera_706163-765.jpg"
+      },
+      {
+        "title": "swimming_pool.jpg",
+        "imageUrl": "https://wallpapers.com/images/featured/anime-girl-pictures-t7rj97cpxsunxus8.jpg"
+      }
+    ]
+  }
+}
