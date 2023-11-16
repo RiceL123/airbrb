@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Typography from '@mui/material/Typography';
-import { Card, CardContent } from '@mui/material';
+import { Card, CardContent, Button } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 
 const ListingProfits = ({ listings, bookings }) => {
@@ -10,7 +10,26 @@ const ListingProfits = ({ listings, bookings }) => {
   thirtyDaysAgo.setDate(today.getDate() - lastNDays);
   const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
+  const [xLabel, setXLabel] = useState([...Array(lastNDays).keys()])
+
   const xLabels = [...Array(lastNDays).keys()];
+  const xDateLabels = [];
+
+  const currDate = new Date();
+  currDate.setDate(today.getDate() - lastNDays);
+  for (let i = 0; i < lastNDays; i++) {
+    xDateLabels.push(currDate.toDateString());
+    currDate.setDate(currDate.getDate() + 1);
+  }
+
+  const handleToggleXLabel = () => {
+    console.log(xLabel);
+    if (xLabel[0] === 0) {
+      setXLabel(xDateLabels);
+    } else {
+      setXLabel(xLabels);
+    }
+  }
 
   const profitPerDay = Array(lastNDays).fill(0);
 
@@ -30,21 +49,21 @@ const ListingProfits = ({ listings, bookings }) => {
         continue;
       }
 
-      while (startDate.getDate() <= endDate.getDate()) {
+      console.log()
+      while (startDate.getTime() <= endDate.getTime()) {
         const utc2 = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
         const utc1 = Date.UTC(thirtyDaysAgo.getFullYear(), thirtyDaysAgo.getMonth(), thirtyDaysAgo.getDate());
 
         const dateDifference = Math.floor((utc2 - utc1) / _MS_PER_DAY);
 
-        if (dateDifference >= 0 || dateDifference < lastNDays) {
-          profitPerDay[dateDifference] = parseFloat(listing.price);
+        if (dateDifference >= 0 && dateDifference < lastNDays) {
+          profitPerDay[dateDifference] += parseFloat(listing.price);
           totalProfits += parseFloat(listing.price);
         }
 
         startDate.setDate(startDate.getDate() + 1);
       }
     }
-
     return totalProfits;
   };
 
@@ -62,9 +81,10 @@ const ListingProfits = ({ listings, bookings }) => {
               { data: profitPerDay, id: 'uvId', stack: 'total' }
             ]}
             xAxis={[
-              { label: 'how many days ago', data: xLabels, scaleType: 'band' }
+              { label: 'how many days ago', data: xLabel, scaleType: 'band' }
             ]}
           />
+          <Button variant='outlined' onClick={handleToggleXLabel}>Toggle x-axis labels</Button>
         </CardContent>
       </Card>
     </>
