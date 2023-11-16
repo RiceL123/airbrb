@@ -65,12 +65,14 @@ const PublishListing = ({ id, availability, setAvailability }) => {
               value={startDate}
               onChange={(date) => setStartDate(date)}
               renderInput={(params) => <TextField {...params} />}
+              name="start-date-picker"
             />
             <DatePicker
               label="End Date"
               value={endDate}
               onChange={(date) => setEndDate(date)}
               renderInput={(params) => <TextField {...params} />}
+              name="end-date-picker"
             />
           </LocalizationProvider>
           <Button variant="contained" onClick={publishListing}>
