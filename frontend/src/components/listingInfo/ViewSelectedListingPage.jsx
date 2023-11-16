@@ -194,7 +194,7 @@ const ViewSelectedListingPage = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Typography variant="h6">
+              <Typography variant="h6" id="Photos">
                 Photos
               </Typography>
             </Grid>
@@ -209,7 +209,7 @@ const ViewSelectedListingPage = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Typography variant="h6">
+              <Typography variant="h6" id="Reviews">
                 Reviews
               </Typography>
             </Grid>
