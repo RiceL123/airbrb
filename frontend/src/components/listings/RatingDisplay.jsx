@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
 import Tooltip from '@mui/material/Tooltip';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -9,14 +8,8 @@ import Box from '@mui/material/Box';
 import CardContent from '@mui/material/CardContent';
 
 const RatingDisplay = ({ listing }) => {
-  const navigate = useNavigate();
   const [openReviewModal, setOpenReviewModal] = useState(false);
   const [modalReviews, setModalReviews] = useState([]);
-
-  const goToReviews = (e) => {
-    e.preventDefault();
-    navigate(`/selectedListing/${listing.id}#Reviews`)
-  }
 
   const displayRatingModal = (e, starRating) => {
     e.preventDefault();
@@ -30,7 +23,11 @@ const RatingDisplay = ({ listing }) => {
     setOpenReviewModal(true);
   }
 
-  const handleClose = () => setOpenReviewModal(false);
+  const handleClose = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpenReviewModal(false);
+  }
 
   const numReviews = (<>
     {!listing.reviews || listing.reviews.length === 0
@@ -77,7 +74,7 @@ const RatingDisplay = ({ listing }) => {
   return (
     <>
       <Tooltip title={numReviews} placement="top-start">
-        <Typography onClick={goToReviews} variant='body1'>{'Reviews: ' + (listing.reviews && listing.reviews.length) + ' (Avg: ' + calculateAverageScore() + '/5 ⭐)'}</Typography>
+        <Typography variant='body1'>{'Reviews: ' + (listing.reviews && listing.reviews.length) + ' (Avg: ' + calculateAverageScore() + '/5 ⭐)'}</Typography>
       </Tooltip>
       <Modal
         open={openReviewModal}
@@ -91,9 +88,8 @@ const RatingDisplay = ({ listing }) => {
             {modalReviews.map((x, index) => (
               <Card key={index} sx={{ marginBottom: 2 }}>
                 <CardContent>
-                  <Typography variant="h6">Score: {x.score}</Typography>
-                  <Typography variant="body1">Name: {x.name}</Typography>
-                  <Typography variant="body1">{x.comment}</Typography>
+                  <Typography variant="body2">Name: {x.name}</Typography>
+                  <Typography variant="body2">{x.comment}</Typography>
                 </CardContent>
               </Card>
             ))}
