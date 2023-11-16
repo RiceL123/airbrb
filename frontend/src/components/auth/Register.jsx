@@ -73,6 +73,7 @@ const Register = () => {
           onChange={(e) => setName(e.target.value)}
           required
           fullWidth
+          type='name'
           value={name}
           error={nameError}
           sx={{ mb: 3 }}

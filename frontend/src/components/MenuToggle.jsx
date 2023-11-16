@@ -35,13 +35,13 @@ const MenuToggle = () => {
     >
       <List>
         <ListItem key='View Hosted' disablePadding>
-          <ListItemButton component={Link} to="/hosted">
+          <ListItemButton component={Link} aria-label='link-to-hosted' to="/hosted">
             <ListItemIcon><AddBusinessIcon /></ListItemIcon>
             <ListItemText primary={'View Hosted'} />
           </ListItemButton>
         </ListItem>
         <ListItem key='View All Listings' disablePadding>
-          <ListItemButton component={Link} to="/">
+          <ListItemButton component={Link} aria-label='link-to-landing' to="/">
             <ListItemIcon><HomeIcon /></ListItemIcon>
             <ListItemText primary={'View All Listings'} />
           </ListItemButton>
@@ -62,7 +62,7 @@ const MenuToggle = () => {
   return (
     <div>
       <React.Fragment key='left'>
-        <Button variant="contained" onClick={toggleDrawer(true)} sx={{ mr: 2 }}><MenuIcon /></Button>
+        <Button variant="contained" onClick={toggleDrawer(true)} sx={{ mr: 2 }} aria-label="toggle-menu-button"><MenuIcon /></Button>
         <Drawer
           open={isOpen}
           onClose={toggleDrawer(false)}

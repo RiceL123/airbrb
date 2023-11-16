@@ -17,6 +17,7 @@ const ShowThumbnail = ({ thumbnail, style }) => {
       image={imageUrl}
       style={style}
       alt={altText}
+      aria-label={altText}
     />
   );
 }
