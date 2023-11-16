@@ -49,7 +49,6 @@ const ListingProfits = ({ listings, bookings }) => {
         continue;
       }
 
-      console.log()
       while (startDate.getTime() <= endDate.getTime()) {
         const utc2 = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
         const utc1 = Date.UTC(thirtyDaysAgo.getFullYear(), thirtyDaysAgo.getMonth(), thirtyDaysAgo.getDate());
