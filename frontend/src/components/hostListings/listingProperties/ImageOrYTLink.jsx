@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -13,29 +13,32 @@ import ThumbnailUpload from './ThumbnailUpload';
 
 const ImageOrYTLinkUpload = ({ thumbnail, onChange }) => {
   const [value, setValue] = useState(thumbnail.isYoutubeVideoId ? '2' : '1');
-  const [updatedThumbnail, setThumbnail] = useState(thumbnail);
+
+  useEffect(() => {
+    setValue(thumbnail.isYoutubeVideoId ? '2' : '1');
+  }, [thumbnail.isYoutubeVideoId])
 
   const handleChange = (e, newValue) => {
     if (newValue === '1') {
-      setThumbnail({ isYoutubeVideoId: false, src: '' })
+      onChange(e, { isYoutubeVideoId: false, src: '' });
     } else {
-      setThumbnail({ isYoutubeVideoId: true, src: '' })
+      onChange(e, { isYoutubeVideoId: true, src: '' });
     }
     setValue(newValue);
   };
 
   return (
     <>
-     <Typography>Upload an Image or copy a valid YouTube Link to use as your listings thumbnail</Typography>
+      <Typography variant='h6'>Upload an Image or copy a valid YouTube Link to use as your listings thumbnail</Typography>
       <TabContext value={value}>
         <Box sx={{ width: '100%' }}>
           <Tabs value={value} onChange={handleChange} centered>
-            <Tab label="Image" icon={<ImageIcon />} iconPosition="start" value="1"/>
-            <Tab label="YouTube" icon={<YouTubeIcon />} iconPosition="start" value="2"/>
+            <Tab label="Image" icon={<ImageIcon />} iconPosition="start" value="1" />
+            <Tab label="YouTube" icon={<YouTubeIcon />} iconPosition="start" value="2" />
           </Tabs>
         </Box>
-        <TabPanel value="1"><ThumbnailUpload defaultThumbnail={updatedThumbnail} onChange={onChange} /></TabPanel>
-        <TabPanel value="2"><ThumbnailYoutubeUpload thumbnail={updatedThumbnail} onChange={onChange} /></TabPanel>
+        <TabPanel value="1"><ThumbnailUpload defaultThumbnail={thumbnail} onChange={onChange} /></TabPanel>
+        <TabPanel value="2"><ThumbnailYoutubeUpload thumbnail={thumbnail} onChange={onChange} /></TabPanel>
       </TabContext>
     </>
   );

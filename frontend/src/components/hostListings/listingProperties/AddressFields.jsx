@@ -9,7 +9,7 @@ const AddressFields = ({ street, city, state, handleChange }) => {
         <TextField
           name="street"
           label="Address (Street)"
-          defaultValue={street}
+          value={street}
           onChange={handleChange}
           fullWidth
         />
@@ -18,7 +18,7 @@ const AddressFields = ({ street, city, state, handleChange }) => {
         <TextField
           name="city"
           label="Address (City)"
-          defaultValue={city}
+          value={city}
           onChange={handleChange}
           fullWidth
         />
@@ -27,7 +27,7 @@ const AddressFields = ({ street, city, state, handleChange }) => {
         <TextField
           name="state"
           label="Address (State)"
-          defaultValue={state}
+          value={state}
           onChange={handleChange}
           fullWidth
         />
