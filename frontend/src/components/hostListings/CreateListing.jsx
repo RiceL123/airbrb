@@ -16,6 +16,7 @@ import AmenitiesFields from './listingProperties/AmenitiesFields';
 import BedroomFields from './listingProperties/BedroomFields';
 import ImageCarousel from '../listings/ImageCarousel';
 import ImageOrYTLinkUpload from './listingProperties/ImageOrYTLink';
+import UploadJSON from './listingProperties/UploadJSON';
 
 const CreateListing = ({ reloadListings }) => {
   const { authToken } = useAuth();
@@ -31,7 +32,6 @@ const CreateListing = ({ reloadListings }) => {
     price: 0.0,
     thumbnail: { isYoutubeVideoId: false, src: '' },
     metadata: {
-      ownerEmail: '',
       propertyType: '',
       bedrooms: [],
       numberBathrooms: 0,
@@ -45,7 +45,6 @@ const CreateListing = ({ reloadListings }) => {
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   const handleInputChange = (event, output) => {
-    console.log(listingData);
     const { name, value } = event.target;
     if (name === 'price') {
       // Make sure value is a number
@@ -95,21 +94,25 @@ const CreateListing = ({ reloadListings }) => {
     }
   };
 
+  const handleJSONFile = (e, listingUploaded) => {
+    setListingData({
+      ...listingUploaded,
+    });
+  }
+
   const handleCreateListing = async () => {
     if (!listingData.title) {
       setTitleError(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    console.log(listingData);
     const response = await apiCall('POST', authToken, '/listings/new', listingData);
     if (response.ok) {
       resetListingData();
       reloadListings();
       toggleFormVisibility();
     } else {
-      alert(response.statusText);
-      console.log(response);
+      alert(`(Please ensure the title is unique) ${response.statusText}`);
       console.error('Error occured whilst creating listing: ', response.error);
     }
   };
@@ -322,9 +325,12 @@ const CreateListing = ({ reloadListings }) => {
           {isFormVisible ? 'Confirm New Listing' : 'Create Listing'}
         </Button>
         {isFormVisible
-          ? <Button color='error' variant="outlined" sx={{ mt: 2 }} onClick={handleCancelCreate}>
-            Cancel
-          </Button>
+          ? <span style={{ marginTop: 2 }}>
+            <Button color='error' variant="outlined" onClick={handleCancelCreate}>
+              Cancel
+            </Button>
+            <UploadJSON handleJSONFile={handleJSONFile} />
+          </span>
           : <></>
         }
       </Box>

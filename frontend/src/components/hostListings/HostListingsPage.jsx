@@ -7,12 +7,14 @@ import { Box } from '@mui/system';
 import { useAuth } from '../auth/AuthContext';
 import ListingCard from '../listings/ListingCard';
 import CreateListing from './CreateListing';
+import ListingProfits from './ListingProfits';
 import { apiCall } from '../../helpers';
 
 const HostListingsPage = () => {
   const { authEmail, authToken } = useAuth();
   const navigate = useNavigate();
   const [listings, setListings] = useState([]);
+  const [bookings, setBookings] = useState([]);
 
   const getListings = async () => {
     const response = await apiCall('GET', authToken, '/listings', undefined);
@@ -24,9 +26,20 @@ const HostListingsPage = () => {
     }
   }
 
+  const getBookings = async () => {
+    const response = await apiCall('GET', authToken, '/bookings', undefined);
+    if (response.ok) {
+      const data = await response.json();
+      setBookings(data.bookings);
+    } else {
+      console.error('Getting all bookings failed.');
+    }
+  }
+
   useEffect(() => {
     if (!authToken) return;
     getListings();
+    getBookings();
   }, [authToken]);
 
   const handleEdit = (listingId) => () => {
@@ -66,6 +79,7 @@ const HostListingsPage = () => {
         {!authEmail && !authToken
           ? <Typography variant="h6">To view your listings, please <Link to='/login'>Login</Link></Typography>
           : (<>
+            <ListingProfits listings={listings.filter(x => x.owner === authEmail)} bookings={bookings}/>
             <CreateListing reloadListings={getListings}/>
             <Typography variant="h2">Listings for {authEmail}.</Typography>
             <Typography variant="h4" sx={{ mb: 1 }}>Published Listings</Typography>
