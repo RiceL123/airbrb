@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -44,12 +44,7 @@ const CreateListing = ({ reloadListings }) => {
   });
   const [isFormVisible, setIsFormVisible] = useState(false);
 
-  useEffect(() => {
-    console.log(listingData);
-  }, [listingData]);
-
   const handleInputChange = (event, output) => {
-    console.log(listingData);
     const { name, value } = event.target;
     if (name === 'price') {
       // Make sure value is a number
@@ -100,7 +95,6 @@ const CreateListing = ({ reloadListings }) => {
   };
 
   const handleJSONFile = (e, listingUploaded) => {
-    console.log(listingUploaded);
     setListingData({
       ...listingUploaded,
     });
@@ -112,7 +106,6 @@ const CreateListing = ({ reloadListings }) => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    console.log(listingData);
     const response = await apiCall('POST', authToken, '/listings/new', listingData);
     if (response.ok) {
       resetListingData();
