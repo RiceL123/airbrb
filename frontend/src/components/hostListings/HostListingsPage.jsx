@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 
 import { Typography, Grid, Button } from '@mui/material';
 import { Box } from '@mui/system';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { useAuth } from '../auth/AuthContext';
 import ListingCard from '../listings/ListingCard';
@@ -64,11 +66,11 @@ const HostListingsPage = () => {
         <ListingCard listing={listing} key={listing.id} />
         {published
           ? (<>
-            <Button variant="contained" onClick={handleEdit(listing.id)}>Edit</Button>
+            <Button variant="contained" onClick={handleEdit(listing.id)} endIcon={<EditIcon />}>Edit</Button>
             <Button variant="contained" onClick={handleUnPublish(listing.id)}>unPublish</Button>
           </>)
-          : <Button variant="contained" onClick={handleEdit(listing.id)}>Edit / Publish</Button>}
-        <Button color='error' variant="outlined" onClick={handleDelete(listing.id)}>Delete</Button>
+          : <Button variant="contained" onClick={handleEdit(listing.id)} endIcon={<EditIcon />}>Edit / Publish</Button>}
+        <Button color='error' variant="outlined" onClick={handleDelete(listing.id)} endIcon={<DeleteIcon />}>Delete</Button>
       </Grid>
     ))
   }

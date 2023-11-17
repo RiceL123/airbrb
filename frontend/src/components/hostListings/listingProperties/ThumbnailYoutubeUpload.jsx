@@ -50,6 +50,7 @@ const ThumbnailYoutubeUpload = ({ thumbnail, onChange }) => {
               width="auto"
               height="170"
               src={`https://www.youtube.com/embed/${youtubeVideoId}`}
+              aria-label='youtube thumbnail embed'
               allowFullScreen
             />
           </>)

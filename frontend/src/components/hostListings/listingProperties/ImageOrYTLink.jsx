@@ -30,7 +30,7 @@ const ImageOrYTLinkUpload = ({ thumbnail, onChange }) => {
   return (
     <>
       <Typography variant='h6'>Upload an Image or copy a valid YouTube Link to use as your listings thumbnail</Typography>
-      <TabContext value={value}>
+      <TabContext value={value} aria-label='upload image or youtube link for listing thumbnail'>
         <Box sx={{ width: '100%' }}>
           <Tabs value={value} onChange={handleChange} centered>
             <Tab label="Image" icon={<ImageIcon />} iconPosition="start" value="1" />

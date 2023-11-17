@@ -25,6 +25,8 @@ const ThumbnailUpload = ({ defaultThumbnail, onChange }) => {
       <CardMedia
         sx={{ height: 200, width: 200 }}
         image={thumbnail.src === '' ? DEFAULT_IMG : thumbnail.src}
+        alt='listing thumbnail'
+        aria-label='listing thumbnail'
       />
       <Input
         name="thumbnail"

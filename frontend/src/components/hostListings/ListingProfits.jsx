@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Typography from '@mui/material/Typography';
-import { Card, CardContent, Button } from '@mui/material';
+import { Card, CardContent } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
+import Switch from '@mui/material/Switch';
 
 const ListingProfits = ({ listings, bookings }) => {
   const lastNDays = 30;
@@ -83,7 +84,8 @@ const ListingProfits = ({ listings, bookings }) => {
               { label: 'how many days ago', data: xLabel, scaleType: 'band' }
             ]}
           />
-          <Button variant='outlined' onClick={handleToggleXLabel}>Toggle x-axis labels</Button>
+          <label htmlFor='toggle-x-axis-label' style={{ fontFamily: 'sans-serif' }}>Use x-axis dates</label>
+          <Switch id='toggle-x-axis-label' aria-label='toggle x-axis labels' onClick={handleToggleXLabel}/>
         </CardContent>
       </Card>
     </>
