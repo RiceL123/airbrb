@@ -29,7 +29,7 @@ const MenuToggle = () => {
   const list = () => (
     <Box
       sx={{ width: 250 }}
-      role="presentation"
+      role="toggle drawer for links to bookings and listings"
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
