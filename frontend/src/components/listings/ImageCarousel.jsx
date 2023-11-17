@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Tab, Tabs, Typography, Button } from '@mui/material';
+import { Card, CardContent, CardMedia, Tab, Tabs, Typography, Switch, Button } from '@mui/material';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
@@ -66,7 +66,10 @@ const ImageCarousel = ({ images }) => {
             ))
           }
         </ImageList >)}
-        <Button onClick={toggleCarousel} variant="outlined" sx={{ m: 2 }}>Toggle Image View</Button>
+      <label htmlFor='toggle-image-view' style={{ fontFamily: 'sans-serif' }}>Toggle Image View</label>
+      <Button onClick={toggleCarousel} name='Toggle Image View'>
+        <Switch id='toggle-image-view' aria-label='toggle image grid' role='button' />
+      </Button>
     </>
   );
 }

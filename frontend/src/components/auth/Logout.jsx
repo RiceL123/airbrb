@@ -3,6 +3,8 @@ import { Button } from '@mui/material';
 import { useAuth } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { apiCall } from '../../helpers';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 const Logout = () => {
   const naviagte = useNavigate();
   const { authToken, logout } = useAuth();
@@ -13,7 +15,7 @@ const Logout = () => {
     naviagte('/');
   }
   return (
-    <Button variant="contained" onClick={handleLogout}>Logout</Button>
+    <Button variant="contained" onClick={handleLogout} endIcon={<LogoutIcon />}>Logout</Button>
   );
 }
 
