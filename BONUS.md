@@ -9,5 +9,4 @@ What do you call a cute door?
   adoorable
 </details>
 
-
-![Merry Christmas!](https://cdn.discordapp.com/attachments/694947163280506980/1033498672903770172/gura2_2_1.webm)
+![Vandrew](https://i.imgur.com/FwO1pUT.mp4)
