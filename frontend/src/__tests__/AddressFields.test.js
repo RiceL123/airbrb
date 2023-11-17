@@ -11,19 +11,32 @@ describe('show inputs for address fields', () => {
     expect(screen.getByLabelText('Address (State)').value).toBe('NSW');
   });
 
-  it('takes input correctly', () => {
-    render(<AddressFields street="123 Main St" city="Sydney" state="NSW" />);
+  it('renders correctly with empty values', () => {
+    render(<AddressFields street="" city="" state="" />);
 
-    const streetInput = screen.getByLabelText('Address (Street)');
-    const cityInput = screen.getByLabelText('Address (City)');
-    const stateInput = screen.getByLabelText('Address (State)');
+    expect(screen.getByLabelText('Address (Street)').value).toBe('');
+    expect(screen.getByLabelText('Address (City)').value).toBe('');
+    expect(screen.getByLabelText('Address (State)').value).toBe('');
+  });
 
-    fireEvent.change(streetInput, { target: { value: '456 New St' } });
-    fireEvent.change(cityInput, { target: { value: 'Brisbane' } });
-    fireEvent.change(stateInput, { target: { value: 'QLD' } });
+  it('takes street input correctly', () => {
+    const handleChangeMock = jest.fn();
+    const { getByLabelText } = render(<AddressFields street="" city="" state="" handleChange={handleChangeMock} />);
+    fireEvent.change(getByLabelText('Address (Street)'), { target: { value: 'New Street' } });
+    expect(handleChangeMock).toHaveBeenCalled();
+  });
 
-    expect(streetInput.value).toBe('456 New St');
-    expect(cityInput.value).toBe('Brisbane');
-    expect(stateInput.value).toBe('QLD');
+  it('takes city input correctly', () => {
+    const handleChangeMock = jest.fn();
+    const { getByLabelText } = render(<AddressFields street="" city="" state="" handleChange={handleChangeMock} />);
+    fireEvent.change(getByLabelText('Address (City)'), { target: { value: 'New City' } });
+    expect(handleChangeMock).toHaveBeenCalled();
+  });
+
+  it('takes state input correctly', () => {
+    const handleChangeMock = jest.fn();
+    const { getByLabelText } = render(<AddressFields street="" city="" state="" handleChange={handleChangeMock} />);
+    fireEvent.change(getByLabelText('Address (State)'), { target: { value: 'New State' } });
+    expect(handleChangeMock).toHaveBeenCalled();
   });
 })
