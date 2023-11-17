@@ -281,10 +281,10 @@ const CreateListing = ({ reloadListings }) => {
               <Grid item xs={6}>
                 <NumberField name='numberBeds' label='Number of Bedrooms' value={listingData.metadata.numberBeds} onChange={handleInputChangeMetaData} />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <ImageOrYTLinkUpload thumbnail={listingData.thumbnail} onChange={handleInputChange} />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <Card
                   sx={{ mb: 2, p: 1 }}>
                   <Typography variant="body1">Listing Images</Typography>
@@ -321,18 +321,18 @@ const CreateListing = ({ reloadListings }) => {
             </Grid>
           )}
         </Box>
-        <Button variant="contained" sx={{ mt: 2, mr: 2 }} aria-label="create-listing-button" onClick={isFormVisible ? handleCreateListing : toggleFormVisibility}>
-          {isFormVisible ? 'Confirm New Listing' : 'Create Listing'}
-        </Button>
         {isFormVisible
-          ? <span style={{ marginTop: 2 }}>
+          ? <div style={{ marginTop: '4px' }}>
             <Button color='error' variant="outlined" onClick={handleCancelCreate}>
               Cancel
             </Button>
             <UploadJSON handleJSONFile={handleJSONFile} />
-          </span>
+          </div>
           : <></>
         }
+        <Button variant="contained" sx={{ mt: 2, mr: 2 }} aria-label="create-listing-button" onClick={isFormVisible ? handleCreateListing : toggleFormVisibility}>
+          {isFormVisible ? 'Confirm New Listing' : 'Create Listing'}
+        </Button>
       </Box>
     </>
   );
